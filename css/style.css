@@ -132,11 +132,22 @@ h2 {
 }
 
 label {
-    display: block;
+    display: flex; /* 使用flexbox布局 */
+    justify-content: space-between; /* 将子元素（文本和span）推到两端 */
+    align-items: center; /* 垂直居中子元素 */
     margin-bottom: 8px;
     font-weight: bold;
     color: #555;
     font-size: 1em;
+}
+
+/* 字符计数span样式 */
+.char-count {
+    font-weight: normal; /* 计数不加粗 */
+    font-size: 0.9em; /* 字号小一点 */
+    color: #6c757d; /* 灰色 */
+    margin-left: 10px; /* 与标签文本的间距 */
+    flex-shrink: 0; /* 防止在空间不足时被压缩 */
 }
 
 input[type="text"],

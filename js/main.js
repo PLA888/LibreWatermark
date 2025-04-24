@@ -58,10 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const embedKeyInput = document.getElementById('embed-key');
     const embedWatermarkInput = document.getElementById('embed-watermark');
     const embedTextInput = document.getElementById('embed-text');
+    const embedTextCountSpan = document.getElementById('embed-text-count'); // 获取原始文本计数span
     const densitySlider = document.getElementById('density-slider');
     const densityValueSpan = document.getElementById('density-value');
     const embedButton = document.getElementById('embed-button');
     const embedOutputTextarea = document.getElementById('embed-output');
+    const embedOutputCountSpan = document.getElementById('embed-output-count'); // 获取带水印文本计数span
     const copyButton = document.getElementById('copy-button');
 
     // Extract elements
@@ -76,6 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (densitySlider && densityValueSpan) {
         densitySlider.addEventListener('input', () => {
             densityValueSpan.textContent = densitySlider.value;
+        });
+    }
+
+    // Function to update character count for a textarea
+    function updateCharCount(textareaElement, countSpanElement) {
+        if (textareaElement && countSpanElement) {
+            const count = textareaElement.value.length;
+            countSpanElement.textContent = `(${count} 字)`;
+        }
+    }
+
+    // Embed text input count update
+    if (embedTextInput && embedTextCountSpan) {
+        embedTextInput.addEventListener('input', () => {
+            updateCharCount(embedTextInput, embedTextCountSpan);
         });
     }
 
@@ -107,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Pass block size to embedWatermark
                     const resultText = embedWatermark(text, key, watermark, blockSize);
                     embedOutputTextarea.value = resultText;
+                    updateCharCount(embedOutputTextarea, embedOutputCountSpan); // 更新输出文本框计数
                     statusMessage.textContent = '水印嵌入成功！';
                     statusMessage.classList.add('success');
 
@@ -224,5 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
          densityValueSpan.textContent = densitySlider.value; // Initialize density value display
      }
      // Copy button initial state is handled within showTab now
+
+    // Initial counts
+    updateCharCount(embedTextInput, embedTextCountSpan);
+    updateCharCount(embedOutputTextarea, embedOutputCountSpan); // Output is empty initially, count will be 0
 
 }); // End DOMContentLoaded

@@ -33,7 +33,7 @@
                         <input type="text" id="embed-watermark" placeholder="要隐藏的文本信息">
                     </div>
                     <div class="form-group">
-                        <label for="embed-text">原始文本 (B):</label>
+                        <label for="embed-text">原始文本 (B): <span class="char-count" id="embed-text-count">(0 字)</span></label>
                         <textarea id="embed-text" rows="12" placeholder="在此输入或粘贴您的原始文本"></textarea>
                     </div>
                 </div>
@@ -46,9 +46,11 @@
                             <span id="density-value">500</span> 字符/块
                         </div>
                         <small>值越小，水印在文本中重复越多，从短片段提取概率越高，但文本膨胀越大。</small>
+                        <br>
+                        <div>150字以上的文本插入水印，推荐值约为原文长度的 1/5~1/20</div>
                     </div>
                     <div class="form-group result-group">
-                        <label for="embed-output">带水印的文本:</label>
+                        <label for="embed-output">带水印的文本: <span class="char-count" id="embed-output-count">(0 字)</span></label>
                         <textarea id="embed-output" rows="12" readonly placeholder="生成的文本将显示在此处"></textarea>
                         <button id="copy-button" class="copy-button secondary">复制结果</button>
                     </div>
