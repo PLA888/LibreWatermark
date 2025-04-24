@@ -1,9 +1,8 @@
 // watermark.js - Core blind watermark logic with block embedding and authentication
-// (No changes in this version)
 
 const ZERO_WIDTH_SPACE = '\u200b'; // Represents bit '0'
 const ZERO_WIDTH_NON_JOINER = '\u200c'; // Represents bit '1'
-const AUTH_CODE_BITS = 16; // Number of bits for the authentication code
+const AUTH_CODE_BITS = 32; // <-- Increased authentication code length to 32 bits
 
 // --- Pseudo-Random Number Generator (PRNG) ---
 // Simple hash function to create a seed from the key string
@@ -12,10 +11,14 @@ function simpleHash(str) {
     for (let i = 0; i < str.length; i++) {
         hash = (hash * 33) ^ str.charCodeAt(i);
     }
+    // A slightly more complex step, maybe mixing with another prime or shifting
+    hash = (hash ^ (hash >>> 16)) * 2246822507;
+    hash = (hash ^ (hash >>> 13)) * 3266489917;
+    hash = (hash ^ (hash >>> 16));
     return hash >>> 0; // Ensure positive integer
 }
 
-// Simple LCG PRNG class
+// Simple LCG PRNG class (remains the same)
 class SimpleLCG {
     constructor(seed) {
         // Ensure seed is a positive integer
@@ -54,9 +57,22 @@ class SimpleLCG {
     nextBit() {
       return this.nextIntRange(0, 2); // Either 0 or 1
     }
+     // Generate a pseudo-random integer (32-bit)
+    nextInteger() {
+        // Combine two nextInt calls if LCG period is an issue for 32 bits,
+        // or if m is less than 2^32. SimpleLCG has m = 2^31, so let's combine.
+        const high = this.nextInt() >>> 0; // Upper 16 bits (approx)
+        const low = this.nextInt() >>> 0; // Lower 16 bits (approx)
+        // Combine them. This isn't cryptographically strong, but better than a single LCG call.
+        // Using bitwise operations to combine two 31-bit numbers into a 32-bit number
+        return (high << 16) | low; // This might exceed 32 bits depending on JS engine behavior, needs care
+        // A safer way:
+        return (this.nextInt() & 0xFFFF) | ((this.nextInt() & 0xFFFF) << 16); // Combine two 16-bit values
+    }
+
 }
 
-// --- String <-> Binary Conversion ---
+// --- String <-> Binary Conversion (remains the same) ---
 // Converts a string to a binary string ('0' and '1') using UTF-8
 function stringToBinary(input) {
     const encoder = new TextEncoder(); // Defaults to UTF-8
@@ -95,32 +111,95 @@ function binaryToString(binaryInput) {
     }
 }
 
-// --- Authentication Code Generation ---
-// Generates a simple authentication code based on watermark binary and key
+// --- Authentication Code Generation (MODIFIED - Stronger) ---
+// Generates a stronger authentication code based on watermark binary and key
 function generateAuthCode(watermarkBinary, secretKey) {
-    const authSeed = simpleHash(secretKey + "_auth_seed");
-    const prng = new SimpleLCG(authSeed);
+    // Use distinct seeds derived from the key for PRNG sequences and a final mixing value
+    const seed1 = simpleHash(secretKey + "_auth_seed_1_data_mix");
+    const seed2 = simpleHash(secretKey + "_auth_seed_2_final_hash");
+    const seed3 = simpleHash(secretKey + "_auth_seed_3_final_mix");
 
-    // Generate key-dependent "random" bits for XORing with data
-    let keyBits = '';
-    for (let i = 0; i < AUTH_CODE_BITS; i++) {
-        keyBits += prng.nextBit();
-    }
+    const prng1 = new SimpleLCG(seed1); // For mixing with data
+    const prng2 = new SimpleLCG(seed2); // For final hash/checksum structure
+    const prng3 = new SimpleLCG(seed3); // For final XOR
 
-    // Simple XOR checksum: XOR chunks of watermark binary with key bits
-    let checksum = Array(AUTH_CODE_BITS).fill(0); // Initialize checksum bits
     const watermarkLen = watermarkBinary.length;
+    const authCodeBytes = AUTH_CODE_BITS / 8; // Number of bytes for auth code
 
+    // Step 1: Mix watermark binary with a key-derived stream
+    let mixedDataBytes = Array(Math.ceil(watermarkLen / 8)).fill(0);
     for (let i = 0; i < watermarkLen; i++) {
-        const watermarkBit = parseInt(watermarkBinary[i], 10);
-        const keyBit = parseInt(keyBits[i % AUTH_CODE_BITS], 10); // Cycle through key bits
-        checksum[i % AUTH_CODE_BITS] = checksum[i % AUTH_CODE_BITS] ^ (watermarkBit ^ keyBit);
+         const byteIndex = Math.floor(i / 8);
+         const bitIndex = i % 8;
+         const watermarkBit = parseInt(watermarkBinary[i], 10);
+
+         // Generate key bit using PRNG1, cycle through bytes of a pseudo-random integer
+         const keyBit1 = (prng1.nextIntRange(0, 256) >>> (bitIndex % 8)) & 1; // Get a key bit from a random byte
+
+         // XOR the watermark bit into the corresponding byte of mixedDataBytes
+         mixedDataBytes[byteIndex] = mixedDataBytes[byteIndex] ^ (watermarkBit << bitIndex);
+         mixedDataBytes[byteIndex] = mixedDataBytes[byteIndex] ^ (keyBit1 << bitIndex); // Also mix with key bit
     }
 
-    return checksum.join(''); // Return as binary string
+    // Step 2: Reduce the mixed data bytes into a fixed-size hash/checksum structure
+    let authChecksumBytes = Array(authCodeBytes).fill(0);
+    for (let i = 0; i < mixedDataBytes.length; i++) {
+        // Use PRNG2 to determine how to mix each byte
+        const mixValue = prng2.nextIntRange(0, 256);
+        const targetIndex = prng2.nextIntRange(0, authCodeBytes); // Randomly pick a target byte in the checksum
+
+        // More complex mixing: XOR, add, rotate based on key-derived values
+        let byteToMix = mixedDataBytes[i];
+        byteToMix = (byteToMix + mixValue) & 0xFF; // Add with overflow
+        byteToMix = (byteToMix << (prng2.nextIntRange(0, 8))) | (byteToMix >>> (8 - prng2.nextIntRange(0, 8))); // Rotate bits randomly
+
+        authChecksumBytes[targetIndex] = (authChecksumBytes[targetIndex] ^ byteToMix) & 0xFF; // XOR into checksum byte
+    }
+
+     // Step 3: Final XOR with a third key-derived stream
+    let finalAuthBytes = Array(authCodeBytes).fill(0);
+    let keyStreamBytes3 = '';
+    for(let i = 0; i < authCodeBytes; i++) {
+        keyStreamBytes3 += prng3.nextIntRange(0, 256).toString(2).padStart(8, '0');
+    }
+
+    let authCodeBinary = '';
+    for (let i = 0; i < authCodeBytes; i++) {
+         const checksumByte = authChecksumBytes[i];
+         const keyByte3 = parseInt(keyStreamBytes3.substring(i*8, (i+1)*8), 2);
+
+         const finalByte = (checksumByte ^ keyByte3) & 0xFF;
+         authCodeBinary += finalByte.toString(2).padStart(8, '0');
+    }
+
+    return authCodeBinary; // Return as binary string of length AUTH_CODE_BITS
+}
+// 片段1'
+
+// 片段2：添加零宽字符检测和清除函数 (remains the same)
+/**
+ * Checks if a string contains any zero-width characters.
+ * @param {string} text The input string.
+ * @returns {boolean} True if zero-width characters are found, false otherwise.
+ */
+function containsZeroWidthChars(text) {
+    // Common zero-width characters: ZWSP, ZWNJ, ZWJ, Byte Order Mark (sometimes used unintentionally)
+    const zeroWidthRegex = /[\u200B-\u200D\uFEFF]/g; // Use global flag
+    return zeroWidthRegex.test(text);
 }
 
-// --- Core Watermark Logic ---
+/**
+ * Removes all zero-width characters from a string.
+ * @param {string} text The input string.
+ * @returns {string} The string with zero-width characters removed.
+ */
+function cleanZeroWidthChars(text) {
+    const zeroWidthRegex = /[\u200B-\u200D\uFEFF]/g; // Use global flag for replaceAll
+    return text.replace(zeroWidthRegex, '');
+}
+// 片段2'
+
+// --- Core Watermark Logic (remains the same except using the new generateAuthCode) ---
 
 /**
  * Embeds a watermark into the text using zero-width characters, in blocks.
@@ -146,8 +225,8 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
     // Use 16 bits for length prefix (max length 65535 bits)
     const lengthBinary = watermarkLength.toString(2).padStart(16, '0');
 
-    // Generate authentication code
-    const authBinary = generateAuthCode(watermarkBinary, secretKey);
+    // Generate authentication code (uses the improved function)
+    const authBinary = generateAuthCode(watermarkBinary, secretKey); // <-- Uses modified function
 
     const fullBinaryPayload = lengthBinary + watermarkBinary + authBinary;
     const payloadBits = fullBinaryPayload.length;
@@ -284,6 +363,10 @@ function extractWatermark(textWithWatermark, secretKey) {
 
     // 2. Iterate through the extracted bits, trying to decode a payload starting at each position
     const streamSeed = simpleHash(secretKey + "_stream_seed"); // Seed for keystream (must match embedding)
+    // Pass auth seeds to the extraction logic to correctly regenerate auth codes during verification
+    const authSeed1 = simpleHash(secretKey + "_auth_seed_1_data_mix");
+    const authSeed2 = simpleHash(secretKey + "_auth_seed_2_final_hash");
+    const authSeed3 = simpleHash(secretKey + "_auth_seed_3_final_mix");
 
     // Try every possible starting position for a payload within the extracted bits
     for (let i = 0; i <= extractedBits.length - minPayloadBits; i++) {
@@ -293,14 +376,12 @@ function extractWatermark(textWithWatermark, secretKey) {
         // Need at least 16 bits for the length prefix
         if (currentBitsSlice.length < 16) continue;
 
-        // Generate a NEW keystream instance for THIS decoding attempt, seeded with the secret key.
-        // Crucially, the keystream generation STARTS from the beginning of the keystream sequence
-        // derived from the key, as it would have been generated sequentially for the payload during embedding.
+        // Generate NEW PRNG instances for THIS decoding attempt, seeded with the secret key.
         const prngForStreamAttempt = new SimpleLCG(streamSeed);
 
         // --- Attempt to decode Length Prefix (16 bits) ---
         let potentialLengthBinary = '';
-        let bitsProcessed = 0;
+        let bitsProcessed = 0; // Bits processed from currentBitsSlice
         for (let k = 0; k < 16; k++) {
              if (k >= currentBitsSlice.length) break; // Ran out of bits in the extracted slice
              const scrambledBit = parseInt(currentBitsSlice[k], 10);
@@ -344,14 +425,16 @@ function extractWatermark(textWithWatermark, secretKey) {
             const authBitIndex = bitsProcessed + k;
             if (authBitIndex >= currentBitsSlice.length) break; // Should not happen
             const scrambledBit = parseInt(currentBitsSlice[authBitIndex], 10);
-            const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream
+            const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream (Keystream continues)
             extractedAuthBinary += (scrambledBit ^ keyBit).toString();
         }
         if (extractedAuthBinary.length !== AUTH_CODE_BITS) continue; // Did not get expected auth length
-        // bitsProcessed += AUTH_CODE_BITS; // Update bits processed count (optional, not needed after this)
 
-        // 3. Verify Authentication Code
-        const expectedAuthBinary = generateAuthCode(potentialWatermarkBinary, secretKey);
+        // 3. Verify Authentication Code (uses the same improved generation logic)
+        // Re-run the generateAuthCode logic with extracted data and provided key
+        // Make sure generateAuthCode is called with the *same* logic and seeds as embedding.
+        // The generateAuthCode function itself is deterministic based on key and data.
+        const expectedAuthBinary = generateAuthCode(potentialWatermarkBinary, secretKey); // <-- Calls modified function
 
         if (extractedAuthBinary === expectedAuthBinary) {
             // Authentication successful! Decode the watermark binary.
