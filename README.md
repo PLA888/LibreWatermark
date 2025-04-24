@@ -53,16 +53,7 @@
 ## 快速开始
 
 1. **本地使用**：下载项目后，直接用浏览器打开 `index.html` 即可。
-2. **在线部署**：推荐部署到 Cloudflare Pages，步骤如下：
-
-### Cloudflare Pages 部署示例
-
-1. Fork 或上传本项目到你的 GitHub 仓库。
-2. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
-3. 进入 Workers & Pages > Create application > Pages > Connect to Git。
-4. 选择你的仓库，构建设置无需填写（静态文件）。
-5. 点击 "Save and Deploy"。
-6. 部署完成后，即可通过分配的域名访问。例如：[https://librewatermark.is-an.org/](https://librewatermark.is-an.org/)
+2. **在线部署**：支持快速部署到 Github Pages/Cloudflare Pages/Vercel/Netify 平台等
 
 ## 使用方法
 
