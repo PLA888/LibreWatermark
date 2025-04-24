@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibreWatermark - 文本盲水印工具</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>LibreWatermark 文本盲水印</h1>
+        <p>使用零宽字符为您的文本添加或提取隐藏水印。</p>
+        <p><strong>注意:</strong> 某些平台或编辑器可能会过滤掉零宽字符，导致水印失效。</p>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('embed')">嵌入水印</button>
+            <button class="tab-button" onclick="showTab('extract')">提取水印</button>
+        </div>
+
+        <!-- 嵌入水印区域 -->
+        <div id="embed" class="tab-content active">
+            <h2>嵌入水印</h2>
+            <div class="form-group">
+                <label for="embed-key">密钥 (A):</label>
+                <input type="password" id="embed-key" placeholder="用于加密和定位水印">
+            </div>
+            <div class="form-group">
+                <label for="embed-watermark">水印内容 (C):</label>
+                <input type="text" id="embed-watermark" placeholder="要隐藏的文本信息">
+            </div>
+            <div class="form-group">
+                <label for="embed-text">原始文本 (B):</label>
+                <textarea id="embed-text" rows="8" placeholder="在此输入或粘贴您的原始文本"></textarea>
+            </div>
+            <button id="embed-button" class="action-button">生成带水印的文本</button>
+            <div class="form-group result-group">
+                <label for="embed-output">带水印的文本:</label>
+                <textarea id="embed-output" rows="8" readonly placeholder="生成的文本将显示在此处"></textarea>
+                <button id="copy-button" class="copy-button">复制结果</button>
+            </div>
+        </div>
+
+        <!-- 提取水印区域 -->
+        <div id="extract" class="tab-content">
+            <h2>提取水印</h2>
+            <div class="form-group">
+                <label for="extract-key">密钥 (A):</label>
+                <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同">
+            </div>
+            <div class="form-group">
+                <label for="extract-text">包含水印的文本:</label>
+                <textarea id="extract-text" rows="8" placeholder="在此输入或粘贴可能包含水印的文本"></textarea>
+            </div>
+            <button id="extract-button" class="action-button">尝试提取水印</button>
+            <div class="form-group result-group">
+                <label for="extract-output">提取到的水印:</label>
+                <p id="extract-output" class="output-display">[提取结果将显示在此处]</p>
+            </div>
+        </div>
+
+        <p id="status-message" class="status"></p>
+    </div>
+
+    <script src="js/watermark.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
