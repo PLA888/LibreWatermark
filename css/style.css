@@ -3,24 +3,25 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     margin: 0;
-    padding: 0; /* Remove padding, use container margin */
-    background-color: #f4f7f6; /* Gentle background */
+    padding: 0;
+    background-color: #f4f7f6;
     color: #333;
     min-height: 100vh;
     display: flex;
-    flex-direction: column; /* Stack main content and footer */
-    align-items: center; /* Center content horizontally */
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Push footer to bottom */
 }
 
 .container {
-    max-width: 960px; /* Increased max-width for side-by-side */
-    width: 95%; /* Use a percentage for responsiveness */
-    margin: 30px auto 20px auto; /* Top, auto for center, bottom, auto */
+    max-width: 1000px; /* Increased max-width for more space */
+    width: 95%;
+    margin: 30px auto 20px auto;
     background: #fff;
-    padding: 30px 40px; /* More padding */
+    padding: 30px 40px;
     border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08); /* Enhanced shadow */
-    flex-grow: 1; /* Allow container to grow */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    flex-shrink: 0; /* Prevent container from shrinking */
 }
 
 header {
@@ -29,29 +30,30 @@ header {
 }
 
 h1 {
-    color: #007bff; /* Primary blue */
+    color: #007bff;
     margin-bottom: 0.3em;
-    font-size: 2em;
+    font-size: 2.2em; /* Slightly larger heading */
 }
 
 h2 {
      color: #555;
      margin-top: 0;
-     margin-bottom: 1.5em;
-     font-size: 1.4em;
+     margin-bottom: 1em; /* Reduced bottom margin */
+     font-size: 1.5em; /* Slightly larger sub-heading */
      border-bottom: 1px solid #eee;
-     padding-bottom: 10px;
+     padding-bottom: 8px; /* Reduced padding */
+     font-weight: normal; /* Less bold */
 }
 
 .warning-note {
     text-align: center;
-    color: #ff9800; /* Orange for warning */
-    margin-top: 1em;
-    margin-bottom: 2em;
-    font-size: 0.9em;
-    background-color: #fff3e0;
-    padding: 10px;
-    border-left: 4px solid #ff9800;
+    color: #e65100; /* Darker orange */
+    margin-top: 1.5em;
+    margin-bottom: 2.5em;
+    font-size: 0.95em; /* Slightly larger warning font */
+    background-color: #fff8e1; /* Lighter background */
+    padding: 12px; /* More padding */
+    border-left: 4px solid #e65100;
     border-radius: 4px;
 }
 
@@ -62,18 +64,22 @@ h2 {
     border-bottom: 2px solid #007bff;
     justify-content: center;
     padding-bottom: 0;
+    flex-wrap: wrap; /* Allow tabs to wrap */
 }
 
 .tab-button {
-    padding: 12px 25px; /* More padding */
+    padding: 12px 25px;
     cursor: pointer;
     border: none;
-    background-color: #e9ecef; /* Light grey */
+    background-color: #e9ecef;
     margin: 0 3px;
     border-radius: 8px 8px 0 0;
     font-size: 1em;
     font-weight: bold;
     transition: background-color 0.3s ease, color 0.3s ease;
+    flex-grow: 1; /* Allow tabs to grow when wrapped */
+    text-align: center; /* Center text in tabs */
+    min-width: 120px; /* Ensure minimum width */
 }
 
 .tab-button:hover:not(.active) {
@@ -99,17 +105,26 @@ h2 {
 }
 
 /* Two-Column Layout */
-.content-columns {
+.content-layout {
     display: flex;
     gap: 40px; /* Space between columns */
     margin-bottom: 20px;
     flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
 }
 
-.left-column,
-.right-column {
+.left-panel,
+.right-panel {
     flex: 1; /* Grow equally */
     min-width: 300px; /* Minimum width before wrapping */
+    display: flex; /* Use flexbox within panel */
+    flex-direction: column; /* Stack content inside panels */
+}
+
+/* Make textareas fill available height in columns */
+.left-panel textarea,
+.right-panel textarea {
+    flex-grow: 1; /* Allow textareas to take available vertical space */
+    min-height: 150px; /* Ensure a minimum height */
 }
 
 .form-group {
@@ -146,10 +161,6 @@ textarea:focus {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-textarea {
-    resize: vertical;
-}
-
 /* Slider Specific Styling */
 .slider-container {
      display: flex;
@@ -159,22 +170,54 @@ textarea {
 }
 
 input[type="range"] {
-    flex-grow: 1; /* Allow slider to take available space */
-    margin: 0; /* Remove default margin */
+    flex-grow: 1;
+    margin: 0;
     padding: 0;
+    /* Customize slider appearance (optional) */
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    border-radius: 5px;
+    height: 8px;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-moz-range-thumb:hover {
+     background: #0056b3;
 }
 
 #density-value {
     display: inline-block;
-    width: 50px; /* Fixed width for value */
+    width: 50px;
     text-align: right;
     font-weight: bold;
     color: #007bff;
-    font-variant-numeric: tabular-nums; /* Align numbers visually */
+    font-variant-numeric: tabular-nums;
 }
 
 small {
-    display: block; /* Ensure explanation is on its own line */
+    display: block;
     color: #6c757d;
     font-size: 0.85em;
     margin-top: 5px;
@@ -182,20 +225,20 @@ small {
 
 /* Buttons */
 .button-container {
-    text-align: center; /* Center the button */
-    margin-top: 20px;
-    margin-bottom: 20px;
+    text-align: center;
+    margin-top: 15px; /* Adjusted margin */
+    margin-bottom: 15px; /* Adjusted margin */
 }
 
 .action-button {
-    padding: 14px 30px; /* Larger padding */
+    padding: 14px 30px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.1em;
     font-weight: bold;
     transition: background-color 0.3s ease, opacity 0.3s ease;
-    min-width: 200px; /* Ensure a minimum width */
+    min-width: 200px;
 }
 
 .action-button.primary {
@@ -235,101 +278,126 @@ small {
     background-color: #e9ecef;
     padding: 15px;
     border-radius: 6px;
-    min-height: 5em; /* Increased minimum height */
+    min-height: 5em;
     word-break: break-word;
     white-space: pre-wrap;
     border: 1px solid #ced4da;
     color: #495057;
-    overflow-x: auto; /* Allow horizontal scroll if content is too wide */
-    font-size: 0.95em; /* Slightly smaller font for output */
+    overflow: auto; /* Use auto instead of overflow-x */
+    font-size: 0.95em;
+    flex-grow: 1; /* Allow display to grow */
+    display: block; /* Ensure it behaves like a block */
 }
 
 /* Status Messages */
 .status {
-    margin-top: 20px;
-    padding: 12px; /* More padding */
-    border-radius: 6px; /* More rounded */
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
     font-weight: bold;
     text-align: center;
     min-height: 1.5em;
-    opacity: 1; /* Default opacity */
-    transition: opacity 0.5s ease; /* Fade transition */
+    opacity: 1;
+    transition: opacity 0.5s ease;
 }
 
 .status:empty {
-    min-height: 0; /* Collapse if empty */
+    min-height: 0;
     padding: 0;
     border: none;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .status.info {
-     color: #0c5460; /* Darker teal */
+     color: #0c5460;
      background-color: #d1ecf1;
      border: 1px solid #bee5eb;
 }
 .status.success {
-     color: #155724; /* Darker green */
+     color: #155724;
      background-color: #d4edda;
      border: 1px solid #c3e6cb;
 }
 .status.warning {
-     color: #856404; /* Darker yellow/brown */
+     color: #856404;
      background-color: #fff3cd;
      border: 1px solid #ffeeba;
 }
 .status.error {
-     color: #721c24; /* Darker red */
+     color: #721c24;
      background-color: #f8d7da;
      border: 1px solid #f5c6cb;
 }
 
 /* Footer */
 footer {
-    margin-top: 20px;
-    padding: 15px;
+    margin-top: 30px; /* More space above footer */
+    padding: 20px; /* More padding */
     text-align: center;
     color: #6c757d;
     font-size: 0.9em;
+    width: 100%; /* Full width footer */
+    flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+footer a {
+    color: #007bff; /* Link color */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #0056b3; /* Darker on hover */
+    text-decoration: underline; /* Add underline on hover */
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 850px) { /* Adjusted breakpoint slightly */
     .container {
-        padding: 20px 20px; /* Less padding on smaller screens */
+        padding: 25px 25px; /* Less padding on smaller screens */
     }
-
-    .content-columns {
+    .content-layout {
         flex-direction: column; /* Stack columns vertically */
         gap: 30px; /* Gap between stacked columns */
     }
 
-    .left-column,
-    .right-column {
+    .left-panel,
+    .right-panel {
         min-width: auto; /* Remove min-width constraint */
     }
 
     .action-button {
         width: 100%; /* Full width buttons */
         min-width: auto;
-    }
-
-    .tabs {
-         flex-wrap: wrap; /* Allow tabs to wrap */
-         justify-content: flex-start; /* Align tabs left if wrapped */
+        padding: 12px 20px; /* Slightly less padding */
     }
 
      .tab-button {
-         flex-grow: 1; /* Allow tabs to grow to fill space if wrapped */
-         margin: 0 0 5px 0; /* Stack buttons with margin */
-         border-radius: 6px; /* Rounded corners on all sides when stacked */
-         border-bottom: 1px solid #007bff; /* Add border back */
+         margin: 0 2px 5px 2px; /* Adjust margin when wrapped */
      }
 
-     .tab-button.active {
-         bottom: 0; /* Reset bottom position */
-         border-bottom: 1px solid #007bff; /* Keep border */
-         background-color: #007bff;
+     h1 { font-size: 1.8em; }
+     h2 { font-size: 1.3em; }
+}
+
+@media (max-width: 480px) { /* Even smaller screens */
+     .container {
+         padding: 15px 15px;
      }
-      h1 { font-size: 1.6em; }
-      h2 { font-size: 1.2em; }
+     h1 { font-size: 1.6em; }
+     h2 { font-size: 1.1em; }
+
+     .tab-button {
+         font-size: 0.9em;
+         padding: 10px 15px;
+         min-width: auto;
+     }
+     .action-button {
+         font-size: 1em;
+     }
+     footer {
+         font-size: 0.8em;
+         padding: 15px;
+     }
 }

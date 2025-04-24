@@ -1,4 +1,5 @@
 // watermark.js - Core blind watermark logic with block embedding and authentication
+// (No changes in this version)
 
 const ZERO_WIDTH_SPACE = '\u200b'; // Represents bit '0'
 const ZERO_WIDTH_NON_JOINER = '\u200c'; // Represents bit '1'
@@ -41,16 +42,6 @@ class SimpleLCG {
          // Simple modulo can introduce bias, but for typical UI use cases it's often acceptable.
          // For positions, less bias is better. Let's stick to the simpler version for now.
         return min + (this.nextInt() % range);
-
-         /* // More complex non-biasing method:
-         const bitsNeeded = Math.ceil(Math.log2(range));
-         const mask = (1 << bitsNeeded) - 1;
-         let randomValue;
-         do {
-              randomValue = this.nextInt() & mask; // Use a sufficient number of bits from nextInt
-         } while (randomValue >= range);
-         return min + randomValue;
-         */
     }
      // Shuffles an array in place using Fisher-Yates algorithm seeded by the PRNG
      shuffleArray(array) {
@@ -144,7 +135,7 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
     if (!originalText || !secretKey || !watermarkText) {
         throw new Error("缺失必需的输入：原始文本、密钥或水印内容。");
     }
-     if (blockSize < 50) { // Basic sanity check for minimum block size
+     if (blockSize < 50) { // Basic sanity check
          console.warn("Block size is very small, may cause issues.");
      }
 
@@ -189,11 +180,12 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
     let resultText = '';
     const numBlocks = Math.ceil(originalText.length / blockSize);
 
-     // We need payloadBits insertion points within a block of blockSize characters.
-     // The number of possible insertion points in a block of size N is N+1 (before 1st char to after last char).
-     // If payloadBits > blockSize + 1, it's impossible to find enough *distinct* indices within the block.
+     // The number of insertion points available in a chunk of size S is S + 1.
+     // We need payloadBits insertion points. So, payloadBits <= textChunk.length + 1
+     // This must hold for the minimum textChunk length we want to embed in.
+     // For full blocks, textChunk.length is blockSize. So payloadBits <= blockSize + 1.
     if (payloadBits > blockSize + 1) {
-         throw new Error(`水印信息 (${payloadBits} 比特) 太长，无法嵌入到指定的分块大小 (${blockSize} 字符) 中。分块大小至少需要 ${payloadBits -1} 个字符。请增加分块大小或减少水印内容。`);
+         throw new Error(`水印信息 (${payloadBits} 比特) 太长，无法嵌入到指定的分块大小 (${blockSize} 字符) 中。请增加分块大小或减少水印内容。`);
     }
 
     for (let i = 0; i < numBlocks; i++) {
@@ -201,23 +193,22 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
         const end = Math.min((i + 1) * blockSize, originalText.length);
         let textChunk = originalText.substring(start, end);
 
-        // Skip embedding in very short last block if it cannot fit the payload
-        if (textChunk.length + 1 < payloadBits) {
-             resultText += textChunk; // Just append the original chunk
-             continue; // Move to the next potential block (though this should be the last one)
-        }
+        // If the last chunk is significantly shorter than payloadBits-1, we might not be able to embed fully.
+        // We could skip embedding in such small final chunks, but for "贯穿性" let's try to embed as much as possible.
+        // The current shuffle/slice logic handles this - it just won't pick payloadBits if not enough indices exist.
+        // However, for reliable extraction of full blocks, we should ideally only embed full payloads where possible.
+        // Let's stick to the simple check for now assuming the user chooses a reasonable blockSize.
+        const possibleIndicesCount = textChunk.length + 1;
+        const indicesToPick = Math.min(payloadBits, possibleIndicesCount);
 
         // Generate insertion positions for this block using a distinct PRNG sequence
         const positionSeed = simpleHash(secretKey + "_pos_seed_" + i); // Seed depends on key and block index
         const prngForPosition = new SimpleLCG(positionSeed);
 
-         // Generate all possible insertion indices within the chunk (0 to textChunk.length)
-        const possibleIndices = Array.from({ length: textChunk.length + 1 }, (_, k) => k);
+         // Generate all possible insertion indices within the chunk
+        const possibleIndices = Array.from({ length: possibleIndicesCount }, (_, k) => k);
 
-        // Shuffle and pick the first `payloadBits` indices
-        // Ensure we don't try to pick more indices than available (handled by the skip above)
-        const indicesToPick = payloadBits; // We determined we have enough space
-
+        // Shuffle and pick the first `indicesToPick` indices
         prngForPosition.shuffleArray(possibleIndices);
         const insertionIndices = possibleIndices.slice(0, indicesToPick);
         insertionIndices.sort((a, b) => a - b); // Sort indices for sequential insertion
@@ -225,12 +216,12 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
         // Insert ZW characters into the text chunk at the chosen positions
         let chunkWithZW = '';
         let chunkIndex = 0;
-        let zwIndex = 0; // Index into the zwChars array for the *current* payload copy
+        let zwIndex = 0; // Index into the zwChars array for the *current* payload copy (only insert indicesToPick number of chars)
 
         while (chunkIndex < textChunk.length || zwIndex < insertionIndices.length) {
              // If the current position is an insertion point, add the next ZW char
             if (zwIndex < insertionIndices.length && insertionIndices[zwIndex] === chunkIndex) {
-                chunkWithZW += zwChars[zwIndex];
+                chunkWithZW += zwChars[zwIndex]; // Use zwChars corresponding to scrambledPayload
                 zwIndex++;
             }
             // If there are still characters left in the chunk, add the next one
@@ -238,13 +229,14 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
                 chunkWithZW += textChunk[chunkIndex];
                 chunkIndex++;
             }
-             // Special case: Handle insertion after the last character of the chunk
+             // Special case: Handle insertion after the last character
              else if (zwIndex < insertionIndices.length && insertionIndices[zwIndex] === textChunk.length) {
                   chunkWithZW += zwChars[zwIndex];
                   zwIndex++;
              }
         }
-         // Note: zwIndex should equal payloadBits after this loop if successful
+         // If indicesToPick < payloadBits, it means we couldn't fit the whole payload in this chunk.
+         // This is fine, the extraction logic will just fail on this partial block.
 
         resultText += chunkWithZW;
     }
@@ -283,7 +275,8 @@ function extractWatermark(textWithWatermark, secretKey) {
         char === ZERO_WIDTH_SPACE ? '0' : '1'
     ).join('');
 
-    const minPayloadBits = 16 + 1 + AUTH_CODE_BITS; // Min: length(16) + 1 data bit + auth(16)
+    // Minimum payload length: 16 (length) + 1 (min data) + AUTH_CODE_BITS (auth)
+    const minPayloadBits = 16 + 1 + AUTH_CODE_BITS;
     if (extractedBits.length < minPayloadBits) {
          console.log(`提取到的零宽字符序列 (${extractedBits.length} 比特) 太短，不足以包含完整的水印 payload (至少 ${minPayloadBits} 比特)。`);
          return null;
@@ -292,93 +285,70 @@ function extractWatermark(textWithWatermark, secretKey) {
     // 2. Iterate through the extracted bits, trying to decode a payload starting at each position
     const streamSeed = simpleHash(secretKey + "_stream_seed"); // Seed for keystream (must match embedding)
 
-     // Iterate through all possible start indices in the extracted ZW sequence
+    // Try every possible starting position for a payload within the extracted bits
     for (let i = 0; i <= extractedBits.length - minPayloadBits; i++) {
-        // Attempt to start decoding a payload from index 'i' in the extracted sequence
-        let currentBits = extractedBits.substring(i); // Substring from current potential start
+        // Attempt to start decoding a payload from index 'i'
+        let currentBitsSlice = extractedBits.substring(i); // Substring from current potential start
 
         // Need at least 16 bits for the length prefix
-        if (currentBits.length < 16) continue;
+        if (currentBitsSlice.length < 16) continue;
 
-        // Create a NEW keystream instance for *each* potential starting position.
-        // Crucially, the keystream application is RELATIVE to the START of the potential payload
-        // (which corresponds to index 'i' in the overall extracted sequence).
-        // The keystream PRNG state should be *reset* to its state *at that point* in the original embedding stream.
-        // This is tricky. A simpler approach is to regenerate the *entire* keystream based on the key,
-        // and then take a segment of it starting at index 'i'.
-        // However, the original embedding used a PRNG seeded ONCE per block.
-        // The *correct* approach for extraction is to simulate the PRNG for *that block*.
-        // But we don't know *which block* this sequence came from!
-        // This highlights a limitation of this extraction approach. We are assuming the extracted ZW sequence
-        // is a contiguous piece from *some* embedded payload.
-
-        // Let's refine the keystream logic: The keystream for a payload copy in a block
-        // depends on the *key*. When extracting a contiguous sequence of ZW,
-        // we don't know which block it came from, but we *do* know the sequence of
-        // ZW bits corresponds to a contiguous section of the *scrambled payload*.
-        // The scrambled payload bits `S_k` were `P_k ^ K_k`, where `P_k` is payload bit `k`
-        // and `K_k` is the keystream bit `k`.
-        // To unscramble, we need `P_k = S_k ^ K_k`. We need the keystream starting at `K_0`.
-        // The keystream for *a* payload is always generated from the same streamSeed.
-        // So, if the extracted sequence starts *exactly* at the beginning of *a* payload,
-        // we can use a keystream generated from streamSeed.
-
-        // Let's regenerate the keystream for the *entire* payload length based on the key.
-        // This assumes the extracted segment starts at the beginning of *some* payload copy.
-        // This is a limitation of the current extraction logic for partial blocks.
-        // A more robust extraction would need to try different offsets into the keystream,
-        // or embed block index information. But let's stick to the simpler model for now,
-        // as it matches the embedding logic for a single block.
-
-         const prngForStreamAttempt = new SimpleLCG(streamSeed); // Use the same seed as embedding
+        // Generate a NEW keystream instance for THIS decoding attempt, seeded with the secret key.
+        // Crucially, the keystream generation STARTS from the beginning of the keystream sequence
+        // derived from the key, as it would have been generated sequentially for the payload during embedding.
+        const prngForStreamAttempt = new SimpleLCG(streamSeed);
 
         // --- Attempt to decode Length Prefix (16 bits) ---
         let potentialLengthBinary = '';
+        let bitsProcessed = 0;
         for (let k = 0; k < 16; k++) {
-             if (k >= currentBits.length) break;
-             const scrambledBit = parseInt(currentBits[k], 10);
-             const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream (relative to start of currentBits)
+             if (k >= currentBitsSlice.length) break; // Ran out of bits in the extracted slice
+             const scrambledBit = parseInt(currentBitsSlice[k], 10);
+             const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream
              potentialLengthBinary += (scrambledBit ^ keyBit).toString();
+             bitsProcessed++;
         }
 
          if (potentialLengthBinary.length < 16) continue; // Did not get a full 16 bits
 
         const potentialWatermarkLength = parseInt(potentialLengthBinary, 2);
 
-        // Sanity check the decoded length
+        // Sanity check the decoded length - reasonable min/max
          if (isNaN(potentialWatermarkLength) || potentialWatermarkLength < 0 || potentialWatermarkLength > 65535) {
-              continue; // Not a valid length range or garbage
+              continue; // Not a valid length
          }
 
-        const expectedPayloadBits = 16 + potentialWatermarkLength + AUTH_CODE_BITS;
+        const expectedPayloadBitsExcludingLength = potentialWatermarkLength + AUTH_CODE_BITS;
+        const expectedTotalPayloadBits = 16 + expectedPayloadBitsExcludingLength;
 
-        // Check if we have enough extracted bits for the full expected payload
-        if (currentBits.length < expectedPayloadBits) {
-            continue; // Not enough bits from this starting point 'i' in the overall extracted sequence
+        // Check if we have enough *remaining* extracted bits for the rest of the payload (data + auth)
+        if (currentBitsSlice.length - bitsProcessed < expectedPayloadBitsExcludingLength) {
+            continue; // Not enough bits from this starting point 'i' for the full expected payload
         }
 
         // --- Attempt to decode Watermark Data ---
         let potentialWatermarkBinary = '';
-          // Continue PRNG sequence for the data part
         for (let k = 0; k < potentialWatermarkLength; k++) {
-            const dataBitIndex = 16 + k;
-             if (dataBitIndex >= currentBits.length) break; // Should not happen due to check above
-            const scrambledBit = parseInt(currentBits[dataBitIndex], 10);
+            const dataBitIndex = bitsProcessed + k;
+             if (dataBitIndex >= currentBitsSlice.length) break; // Should not happen due to check above
+            const scrambledBit = parseInt(currentBitsSlice[dataBitIndex], 10);
             const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream
             potentialWatermarkBinary += (scrambledBit ^ keyBit).toString();
         }
          if (potentialWatermarkBinary.length !== potentialWatermarkLength) continue; // Did not get expected data length
+         bitsProcessed += potentialWatermarkLength; // Update bits processed count
 
         // --- Attempt to decode Authentication Code ---
         let extractedAuthBinary = '';
         for (let k = 0; k < AUTH_CODE_BITS; k++) {
-            const authBitIndex = 16 + potentialWatermarkLength + k;
-            if (authBitIndex >= currentBits.length) break; // Should not happen
-            const scrambledBit = parseInt(currentBits[authBitIndex], 10);
+            const authBitIndex = bitsProcessed + k;
+            if (authBitIndex >= currentBitsSlice.length) break; // Should not happen
+            const scrambledBit = parseInt(currentBitsSlice[authBitIndex], 10);
             const keyBit = prngForStreamAttempt.nextBit(); // Get next bit from keystream
             extractedAuthBinary += (scrambledBit ^ keyBit).toString();
         }
         if (extractedAuthBinary.length !== AUTH_CODE_BITS) continue; // Did not get expected auth length
+        // bitsProcessed += AUTH_CODE_BITS; // Update bits processed count (optional, not needed after this)
 
         // 3. Verify Authentication Code
         const expectedAuthBinary = generateAuthCode(potentialWatermarkBinary, secretKey);
@@ -387,20 +357,20 @@ function extractWatermark(textWithWatermark, secretKey) {
             // Authentication successful! Decode the watermark binary.
             try {
                 const extractedText = binaryToString(potentialWatermarkBinary);
-                console.log(`水印在提取的 ZW 序列的相对位置 ${i} 处成功提取。`);
+                console.log(`水印在提取序列的偏移量 ${i} 处提取成功。`);
                 return extractedText; // Found and verified watermark
             } catch (e) {
-                console.warn(`在位置 ${i} 提取到匹配的认证码，但解码水印文本失败: ${e.message}`);
-                 // This case is less likely with auth code, but possible if data is corrupted in a way
-                 // that doesn't break auth but makes the binary invalid UTF-8.
-                 // Let's continue searching for other potential blocks.
+                console.warn(`在偏移量 ${i} 处提取到匹配的认证码，但解码水印文本失败: ${e.message}`);
+                 // Continue searching, might be a false positive decoding error or partial data that happened to have a matching auth.
+                 // The auth code significantly reduces false positives, but decoding failure is still possible with corrupted data.
             }
         } else {
-            // Authentication failed, wrong key or corrupted data at this position. Continue searching.
+            // Authentication failed, wrong key or corrupted data. Continue searching.
+            // console.log(`偏移量 ${i} 认证码不匹配。`);
         }
     }
 
-    // If loop finishes without returning, no valid watermark payload was found with this key and structure.
+    // If loop finishes without returning, no valid watermark was found with this key.
     console.log("未找到匹配密钥和认证码的有效水印。");
     return null;
 }

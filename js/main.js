@@ -27,12 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
          // Clear status message and output when switching tabs
-        statusMessage.textContent = '';
-        statusMessage.className = 'status'; // Reset classes
+        if (statusMessage) {
+            statusMessage.textContent = '';
+            statusMessage.className = 'status'; // Reset classes
+        }
 
         const embedOutputTextarea = document.getElementById('embed-output');
         const extractOutputDisplay = document.getElementById('extract-output');
-         const copyButton = document.getElementById('copy-button');
+        const copyButton = document.getElementById('copy-button');
 
         if (embedOutputTextarea) embedOutputTextarea.value = '';
         if (extractOutputDisplay) extractOutputDisplay.textContent = '[提取结果将显示在此处]';
@@ -78,7 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Embed Button Click
-    if (embedButton && embedKeyInput && embedWatermarkInput && embedTextInput && embedOutputTextarea && densitySlider && copyButton) {
+    // Check all required elements exist before adding listener
+    if (embedButton && embedKeyInput && embedWatermarkInput && embedTextInput && embedOutputTextarea && densitySlider && copyButton && statusMessage) {
         embedButton.addEventListener('click', () => {
             const key = embedKeyInput.value;
             const watermark = embedWatermarkInput.value;
@@ -122,6 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 10); // Small delay
         });
+    } else {
+        console.error("One or more embed elements not found!");
+        // Optionally display a user-friendly error on the page if critical elements are missing
+         if(statusMessage) {
+             statusMessage.textContent = '页面加载错误，部分功能无法使用。请刷新重试。';
+             statusMessage.classList.add('error');
+         }
     }
 
     // Copy Button Click
@@ -148,6 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
                  statusMessage.classList.add('warning');
             }
         });
+    } else {
+         console.error("Copy button or output textarea not found!");
     }
 
     // Extract Button Click
@@ -197,6 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 10); // Small delay
 
         });
+     } else {
+         console.error("One or more extract elements not found!");
+          // Optionally display a user-friendly error on the page if critical elements are missing
+          if(statusMessage) {
+              statusMessage.textContent = '页面加载错误，部分功能无法使用。请刷新重试。';
+              statusMessage.classList.add('error');
+          }
      }
 
     // Initial setup: show the 'embed' tab by default and set initial slider value display
@@ -204,8 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
      if (densityValueSpan && densitySlider) {
          densityValueSpan.textContent = densitySlider.value; // Initialize density value display
      }
-     if (copyButton) {
-        copyButton.disabled = true; // Disable copy button initially
-     }
+     // Copy button initial state is handled within showTab now
 
 }); // End DOMContentLoaded

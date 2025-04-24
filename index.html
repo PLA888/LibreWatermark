@@ -21,12 +21,12 @@
 
         <!-- 嵌入水印区域 -->
         <div id="embed" class="tab-content active">
-            <div class="content-columns">
-                <div class="left-column">
-                    <h2>嵌入输入</h2>
+            <div class="content-layout">
+                <div class="left-panel">
+                    <h2>输入文本及信息</h2>
                     <div class="form-group">
                         <label for="embed-key">密钥 (A):</label>
-                        <input type="password" id="embed-key" placeholder="用于加密和定位水印" autocomplete="off">
+                        <input type="password" id="embed-key" placeholder="用于加密和定位水印" autocomplete="new-password"> <!-- Use new-password or off -->
                     </div>
                     <div class="form-group">
                         <label for="embed-watermark">水印内容 (C):</label>
@@ -34,12 +34,12 @@
                     </div>
                     <div class="form-group">
                         <label for="embed-text">原始文本 (B):</label>
-                        <textarea id="embed-text" rows="10" placeholder="在此输入或粘贴您的原始文本"></textarea>
+                        <textarea id="embed-text" rows="12" placeholder="在此输入或粘贴您的原始文本"></textarea>
                     </div>
                 </div>
-                <div class="right-column">
-                    <h2>嵌入输出</h2>
-                     <div class="form-group">
+                <div class="right-panel">
+                    <h2>输出结果</h2>
+                    <div class="form-group">
                         <label for="density-slider">水印密度/分块大小:</label>
                         <div class="slider-container">
                             <input type="range" id="density-slider" min="100" max="2000" value="500" step="50">
@@ -61,19 +61,19 @@
 
         <!-- 提取水印区域 -->
         <div id="extract" class="tab-content">
-             <div class="content-columns">
-                 <div class="left-column">
-                     <h2>提取输入</h2>
+             <div class="content-layout">
+                 <div class="left-panel">
+                     <h2>输入文本及密钥</h2>
                     <div class="form-group">
                         <label for="extract-key">密钥 (A):</label>
-                        <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同" autocomplete="off">
+                        <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="extract-text">包含水印的文本:</label>
                         <textarea id="extract-text" rows="12" placeholder="在此输入或粘贴可能包含水印的文本"></textarea>
                     </div>
                  </div>
-                 <div class="right-column">
+                 <div class="right-panel">
                      <h2>提取结果</h2>
                      <div class="form-group result-group">
                         <label>提取到的水印:</label>
@@ -90,7 +90,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2023 LibreWatermark. Powered by pure JS.</p>
+        <p>&copy; 2025 <a href="https://zwei.de.eu.org/" target="_blank">Zwei</a>. Project: <a href="https://github.com/bestZwei/LibreWatermark" target="_blank">LibreWatermark</a>. Powered by pure JS.</p>
     </footer>
 
     <script src="js/watermark.js"></script>
