@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用说明 - LibreWatermark</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* instructions 页面特有样式调整 */
+        .container {
+            max-width: 900px; /* 说明页内容可以稍窄一些 */
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .container h2 {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #ccc; /* 虚线分隔 */
+            padding-bottom: 5px;
+        }
+        .container h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #5ac1a6; /* 主色调 */
+        }
+        .container p, .container li {
+             font-size: 1em;
+             line-height: 1.8;
+             margin-bottom: 10px;
+        }
+        .container ul, .container ol {
+            margin-bottom: 20px;
+            padding-left: 20px; /* 适当缩进 */
+        }
+        .container li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #e0f2f4; /* 浅色背景 */
+            border-left: 4px solid #5ac1a6; /* 主色调边框 */
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .note strong {
+            color: #4a4a4a; /* 加粗文本颜色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1>LibreWatermark 使用说明</h1>
+            <p>详细了解如何使用 LibreWatermark 嵌入、提取和清除文本盲水印。</p>
+             <p><a href="index.html">返回主页</a></p>
+        </header>
+
+        <div class="content">
+            <p>LibreWatermark 是一个纯前端的文本盲水印工具，利用零宽字符在文本中隐藏信息。它在浏览器中本地运行，无需后端，保护您的隐私。本项目适合用于版权追踪、信息溯源等场景，尤其对防范“直接复制粘贴”或“轻微修改”的抄袭行为有效。</p>
+
+            <h2>快速入门</h2>
+            <p>本项目是纯前端应用，部署和使用非常简单：</p>
+            <ol>
+                <li><strong>本地使用：</strong> 下载整个项目文件夹后，直接用现代浏览器打开 <code>index.html</code> 文件即可开始使用。</li>
+                <li><strong>在线部署：</strong> 将项目文件上传到任何支持静态网站托管的平台，例如 GitHub Pages, Cloudflare Pages, Vercel 或您自己的 Web 服务器。用户通过访问您的域名即可在线使用。</li>
+            </ol>
+
+            <h2>功能模块详解</h2>
+            <p>LibreWatermark 提供三个主要功能模块，通过页面顶部的标签页切换：</p>
+
+            <h3>1. 嵌入水印</h3>
+            <p>此功能用于将秘密水印信息嵌入到您的原始文本中。</p>
+            <ul>
+                <li><strong>密钥 (A):</strong> 输入用于加密和隐藏水印的秘密密钥。这个密钥是提取水印时<strong>唯一</strong>的凭证！请务必选择一个复杂（避免简单数字或常用词）且<strong>妥善保存</strong>的密钥。密钥丢失将永远无法提取水印。输入的密钥不会上传到任何服务器。</li>
+                <li><strong>水印内容 (C):</strong> 输入您想要隐藏在文本中的实际信息，例如您的署名、网站 URL、联系方式、或一段唯一的标识符（如时间戳、版本号）。水印内容支持任意 UTF-8 字符。水印内容越短越容易嵌入和提取。</li>
+                <li><strong>原始文本 (B):</strong> 输入或粘贴您要嵌入水印的原始文章、段落或任何文本内容。请注意：
+                    <ul>
+                        <li><strong>文本长度限制：</strong> 原始文本必须达到能容纳至少一个完整水印负载（水印内容+长度前缀+认证码）所需的最小长度。如果文本过短，系统将提示错误并拒绝嵌入。</li>
+                        <li><strong>零宽字符检查：</strong> 如果原始文本中已经包含零宽字符，可能会干扰水印的嵌入和提取。工具会检测并警告，建议您先切换到“清除零宽字符”标签页将原始文本清理干净后再进行嵌入。</li>
+                    </ul>
+                </li>
+                <li><strong>水印密度/分块大小:</strong> 通过拖动滑块调整。它决定了原始文本被切分成多大的“块”来独立嵌入水印。
+                    <ul>
+                        <li><strong>值越小（例如 100-300）:</strong> 分块越小，水印信息在文本中重复嵌入的次数越多，分布越密集。这提高了在仅复制一部分文本时提取出完整水印的概率（鲁棒性更好）。但同时会显著增加输出文本的体积（零宽字符数量多）。对于很长的文本，过小的分块可能导致文本急剧膨胀。</li>
+                        <li><strong>值越大（例如 1000-2000）:</strong> 分块越大，水印分布越稀疏。输出文本体积膨胀较小，但从短片段中提取水印的成功率可能会降低。</li>
+                        <li>对于长文本（1000字以上），一个合理的经验值通常是原始文本长度的 1/4 到 1/20 之间，或者直接使用默认值 500-1000。</li>
+                    </ul>
+                </li>
+                <li><strong>生成带水印的文本:</strong> 点击此按钮开始嵌入过程。如果输入有误或文本过短，会显示错误或警告提示。成功后，带水印的文本将显示在右侧输出区域。</li>
+                <li><strong>复制结果:</strong> 成功生成带水印文本后，点击此按钮可将其复制到系统剪贴板。</li>
+            </ul>
+            <div class="note">
+                 <strong>重要提示：</strong>在嵌入前，请务必通过“清除零宽字符”功能检查并清理原始文本中已有的零宽字符，以避免干扰。
+            </div>
+
+            <h3>2. 提取水印</h3>
+            <p>此功能用于从可能包含水印的文本中尝试恢复隐藏的信息。</p>
+            <ul>
+                <li><strong>密钥 (A):</strong> 输入嵌入水印时<strong>完全一致</strong>的秘密密钥。密钥不匹配将无法正确解密和验证认证码，从而无法成功提取水印。输入的密钥不会上传到任何服务器。</li>
+                <li><strong>包含水印的文本:</strong> 粘贴您怀疑包含水印的文本。这可以是原始带水印文本的全部或一部分。</li>
+                <li><strong>尝试提取水印:</strong> 点击此按钮。工具将扫描文本中的零宽字符，尝试使用您提供的密钥解锁并验证。
+                    <ul>
+                        <li><strong>成功:</strong> 如果密钥正确且零宽字符序列未被严重破坏，成功提取到的水印内容将显示在结果区域。</li>
+                        <li><strong>失败:</strong> 如果密钥错误、文本中没有零宽字符，或者零宽字符序列因文本修改（增删改）而严重损坏，将无法恢复有效水印。结果区域会显示相应的提示。</li>
+                    </ul>
+                </li>
+            </ul>
+             <div class="note">
+                 <strong>提取失败常见原因：</strong>密钥不正确 / 文本中不包含零宽字符 / 文本经过大幅修改破坏了水印 / 零宽字符在复制或粘贴过程中被平台过滤移除。
+            </div>
+
+            <h3>3. 清除零宽字符</h3>
+            <p>此功能提供一个简单的工具，用于移除文本中所有常见的零宽字符。当您怀疑一个文本中包含零宽字符，或者需要在嵌入水印前清理原始文本时非常有用。</p>
+            <ul>
+                <li><strong>待清除文本:</strong> 输入或粘贴您要清理的文本。</li>
+                <li><strong>清除零宽字符:</strong> 点击此按钮。工具会扫描文本，移除所有零宽字符。</li>
+                <li><strong>清除结果:</strong> 移除零宽字符后的干净文本将显示在此区域。如果原始文本中没有零宽字符，输出将与输入一致。</li>
+                <li><strong>复制结果:</strong> 复制清理后的文本。</li>
+            </ul>
+            <div class="note">
+                 清除功能会移除所有常见的零宽字符，<strong>包括可能存在的盲水印！</strong> 请谨慎使用，以免无意中破坏水印。
+            </div>
+
+            <h2>需要注意的关键事项</h2>
+            <ul>
+                <li><strong>零宽字符特性与兼容性：</strong> 零宽字符本身是 Unicode 标准的一部分，但在不同的编辑器、浏览器、数据库、平台（如社交媒体、论坛、代码编辑器等）中，它们的支持和处理方式差异巨大。有些平台可能会自动过滤、删除或替换它们。<strong>因此，零宽字符盲水印的兼容性是其最大的不确定性来源。</strong> 务必在计划使用的具体场景下进行测试。</li>
+                <li><strong>抗修改能力弱：</strong> 零宽字符水印是对文本进行微小修改实现的。任何结构的改变（增删改字符、调整顺序）都可能破坏零宽字符的排列或位置，导致水印提取失败。它不能应对人类进行语义级改写（“洗稿”）的抄袭行为。</li>
+                <li><strong>密钥安全：</strong> 密钥是提取水印的关键。丢失密钥=水印报废。请像管理密码一样管理您的 LibreWatermark 密钥。本项目纯前端运行，密钥不会传输或存储在任何服务器。</li>
+                <li><strong>短文本限制：</strong> 水印负载（包含内容的长度信息和认证信息）有一个最小的比特数需求。原始文本的长度必须至少能提供与负载比特数相等的插入位置（文本长度 + 1）才能保证一个完整负载的嵌入和提取。</li>
+                 <li><strong>性能：</strong> 对于超长的文本文件（例如几十万、上百万字），嵌入和提取过程可能需要显著的计算时间，并可能导致浏览器短暂卡顿。</li>
+            </ul>
+
+            <h2>免责声明</h2>
+            <p class="note">
+                 本项目 (LibreWatermark) 仅为技术探讨和学习交流目的开源。开发者不对使用本项目产生的任何后果负责。零宽字符的特性决定了其局限性（如易丢失、抗修改弱等），<strong>本项目的水印技术不提供任何法律保障</strong>。用户应自行承担使用本工具的风险。<strong>严禁将本项目用于任何非法、侵犯他人权益或违反法律法规的活动。</strong>
+            </p>
+
+        </div> <!-- end content -->
+
+    </div> <!-- end container -->
+
+    <!-- 新增 通知容器，用于显示非阻塞式提示 -->
+    <div id="notification-container"></div>
+
+    <footer>
+        <p>&copy; 2025 <a href="https://zwei.de.eu.org/" target="_blank">Zwei</a>. Project: <a href="https://github.com/bestZwei/LibreWatermark" target="_blank">LibreWatermark</a>. Powered by pure JS.</p>
+         <p><a href="instructions.html">详细使用说明</a></p> <!-- 添加使用说明链接 -->
+    </footer>
+
+     <!-- 引用 JS 文件，notification container 在 DOMContentLoaded 后初始化 -->
+    <script src="js/watermark.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

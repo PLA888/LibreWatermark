@@ -11,6 +11,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+     background-attachment: fixed; /* 使渐变背景固定不随页面滚动 */
 }
 
 .container {
@@ -342,30 +343,30 @@ textarea#embed-output {
     max-height: calc(100vh - 40px); /* 最大高度不超过屏幕高度 */
     overflow-y: auto; /* 通知过多时垂直滚动 */
     width: 100%; /* 允许 max-width 生效 */
-    max-width: 350px; /* 通知框最大宽度 */
+    max-width: 400px; /* 通知框最大宽度，略宽 */
     /* 添加内边距以防止内容贴边，并在小屏幕上提供侧边缓冲 */
-    padding: 0 10px;
+    padding: 0; /* 移除容器 padding */
     box-sizing: border-box; /* Ensure padding is included */
     /* 确保通知容器本身没有水平滚动条 */
      overflow-x: hidden;
 }
 
 .notification-box {
-    padding: 15px;
+    padding: 15px 20px; /* 增加内边距 */
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     font-size: 1em;
     opacity: 1;
     transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* 更平滑的过渡 */
-    display: flex; /* flex 布局消息文本和关闭按钮 */
+    display: flex; /* flex 布局消息文本 */
     align-items: center;
-    justify-content: space-between; /* 推向两端 */
+    justify-content: flex-start; /* 消息文本左对齐 */
     word-break: break-word; /* 确保长单词在达到容器边缘时换行 */
      overflow-wrap: break-word; /* 新标准属性，推荐 */
     flex-shrink: 0; /* 防止缩小 */
     width: 100%; /* 填充父容器宽度 */
     box-sizing: border-box; /* 保证内边距计算在宽度内 */
-    /* 移除关闭按钮样式，因为它不再有 */
+    /* 移除关闭按钮样式 */
 }
 
 .notification-box.hiding {
@@ -375,12 +376,11 @@ textarea#embed-output {
 
 .notification-box .message {
     flex-grow: 1; /* 消息文本填充剩余空间 */
-    /* margin-right: 10px; */ /* 移除关闭按钮间距 */
      word-break: break-word; /* 再强调一次换行 */
      overflow-wrap: break-word;
 }
 
-/* 通知状态颜色 (使用类似 .status 的样式) */
+/* 通知状态颜色 */
 .notification-box.info {
      background-color: #d0f2f9; /* 浅蓝色 */
      color: #0c5460; /* 深蓝色文字 */
@@ -404,13 +404,14 @@ textarea#embed-output {
 
 /* Footer */
 footer {
-    margin-top: 30px; /* 页脚上方间距 */
+    margin-top: 40px; /* 页脚上方更大间距 */
     padding: 20px;
     text-align: center;
     color: #6c757d; /* 灰色 */
     font-size: 0.9em;
     width: 100%;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 footer a {

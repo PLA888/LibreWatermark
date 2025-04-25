@@ -10,8 +10,8 @@
     <div class="container">
         <header>
             <h1>LibreWatermark 文本盲水印</h1>
-            <p>使用零宽字符为您的文本添加或提取隐藏水印。</p>
-            <p class="warning-note"><strong>注意:</strong> 零宽字符水印可能被某些平台或编辑器过滤，且无法抵抗“洗稿”。主要用于追踪直接复制粘贴。</p>
+            <p>使用零宽字符为您的文本添加或提取隐藏水印，保护您的原创内容。</p>
+            <p class="warning-note"><strong>注意:</strong> 零宽字符水印有兼容性限制，且无法抵抗“洗稿”。本项目主要用于追踪直接复制粘贴行为。详细信息请参见<a href="instructions.html">使用说明</a>。</p> <!-- 添加使用说明链接 -->
         </header>
 
         <div class="tabs">
@@ -27,15 +27,15 @@
                     <h2>输入文本及信息</h2>
                     <div class="form-group">
                         <label for="embed-key">密钥 (A):</label>
-                        <input type="password" id="embed-key" placeholder="用于加密和定位水印" autocomplete="new-password">
+                        <input type="password" id="embed-key" placeholder="用于加密和定位水印 (请妥善保管)" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="embed-watermark">水印内容 (C):</label>
-                        <input type="text" id="embed-watermark" placeholder="要隐藏的文本信息">
+                        <input type="text" id="embed-watermark" placeholder="要隐藏的文本信息 (支持中文)">
                     </div>
                     <div class="form-group">
                         <label for="embed-text">原始文本 (B): <span class="char-count" id="embed-text-count">(0 字)</span></label>
-                        <textarea id="embed-text" rows="12" placeholder="在此输入或粘贴您的原始文本"></textarea>
+                        <textarea id="embed-text" rows="12" placeholder="在此输入或粘贴您的原始文本。请注意文本长度限制。"></textarea>
                     </div>
                 </div>
                 <div class="right-panel">
@@ -46,14 +46,14 @@
                             <input type="range" id="density-slider" min="100" max="2000" value="500" step="50">
                             <span id="density-value">500</span> 字符/块
                         </div>
-                        <small>值越小，水印在文本中重复越多，从短片段提取概率越高，但文本膨胀越大。</small>
+                        <small>值越小，水印在分块中越密集重复，从短片段提取概率越高，但文本膨胀越大。</small>
                         <br>
-                        <div>1000字以上的文本插入水印，推荐值约为原文长度的 1/4~1/20</div>
+                        <small>对于大段文本，推荐值约为原文长度的 1/4 ~ 1/20。</small>
                     </div>
                     <div class="form-group result-group">
                         <label for="embed-output">带水印的文本: <span class="char-count" id="embed-output-count">(0 字)</span></label>
-                        <textarea id="embed-output" rows="12" readonly placeholder="生成的文本将显示在此处"></textarea>
-                        <button id="copy-button" class="copy-button secondary">复制结果</button>
+                        <textarea id="embed-output" rows="12" readonly placeholder="生成的带水印文本将显示在此处..."></textarea>
+                        <button id="copy-button" class="copy-button secondary" disabled>复制结果</button>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                      <h2>输入文本及密钥</h2>
                     <div class="form-group">
                         <label for="extract-key">密钥 (A):</label>
-                        <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同" autocomplete="new-password">
+                        <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥完全一致" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="extract-text">包含水印的文本: <span class="char-count" id="extract-text-count">(0 字)</span></label>
@@ -80,7 +80,10 @@
                      <h2>提取结果</h2>
                      <div class="form-group result-group">
                         <label>提取到的水印:</label>
+                        <!-- 使用 <p> 标签显示结果，并添加字符计数 span -->
                         <p id="extract-output" class="output-display">[提取结果将显示在此处]</p>
+                        <!-- 提取结果通常不会有大量字符，可以不显示计数，或者仅在 js 中计算后在 p 后方动态添加 -->
+                         <!-- <span class="char-count" id="extract-output-count">(0 字)</span> -->
                     </div>
                  </div>
              </div>
@@ -103,8 +106,10 @@
                      <h2>清除结果</h2>
                      <div class="form-group result-group">
                         <label>已清除零宽字符的文本: <span class="char-count" id="clean-output-count">(0 字)</span></label>
+                        <!-- 使用 <p> 标签显示结果 -->
                         <p id="clean-output" class="output-display">[清除结果将显示在此处]</p>
-                        <button id="copy-clean-button" class="copy-button secondary">复制结果</button>
+                        <!-- 使用单独的 ID 和按钮类型 -->
+                        <button id="copy-clean-button" class="copy-button secondary" disabled>复制结果</button>
                     </div>
                  </div>
              </div>
@@ -115,13 +120,14 @@
 
     </div> <!-- .container 结束 -->
 
-    <!-- 新增 通知容器，用于显示非阻塞式提示 -->
+    <!-- 通知容器，用于显示非阻塞式提示 (例如： success, error, info) -->
     <div id="notification-container"></div>
 
     <footer>
         <p>&copy; 2025 <a href="https://zwei.de.eu.org/" target="_blank">Zwei</a>. Project: <a href="https://github.com/bestZwei/LibreWatermark" target="_blank">LibreWatermark</a>. Powered by pure JS.</p>
     </footer>
 
+    <!-- 引用 JS 文件 -->
     <script src="js/watermark.js"></script>
     <script src="js/main.js"></script>
 </body>
