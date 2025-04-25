@@ -17,6 +17,8 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="embed">嵌入水印</button>
             <button class="tab-button" data-tab="extract">提取水印</button>
+            <!-- 新增清除零宽字符 Tab -->
+            <button class="tab-button" data-tab="clean">清除零宽字符</button>
         </div>
 
         <!-- 嵌入水印区域 -->
@@ -26,7 +28,7 @@
                     <h2>输入文本及信息</h2>
                     <div class="form-group">
                         <label for="embed-key">密钥 (A):</label>
-                        <input type="password" id="embed-key" placeholder="用于加密和定位水印" autocomplete="new-password"> <!-- Use new-password or off -->
+                        <input type="password" id="embed-key" placeholder="用于加密和定位水印" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="embed-watermark">水印内容 (C):</label>
@@ -71,7 +73,7 @@
                         <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同" autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label for="extract-text">包含水印的文本:</label>
+                        <label for="extract-text">包含水印的文本: <!-- Optionally add count span here --> <span class="char-count" id="extract-text-count">(0 字)</span></label>
                         <textarea id="extract-text" rows="12" placeholder="在此输入或粘贴可能包含水印的文本"></textarea>
                     </div>
                  </div>
@@ -80,11 +82,39 @@
                      <div class="form-group result-group">
                         <label>提取到的水印:</label>
                         <p id="extract-output" class="output-display">[提取结果将显示在此处]</p>
+                        <!-- No count span for extract output as it's a p element showing extracted text -->
                     </div>
                  </div>
              </div>
              <div class="button-container">
                 <button id="extract-button" class="action-button primary">尝试提取水印</button>
+             </div>
+        </div>
+
+        <!-- 新增 清除零宽字符区域 -->
+        <div id="clean" class="tab-content">
+             <div class="content-layout">
+                 <div class="left-panel">
+                     <h2>输入文本</h2>
+                    <div class="form-group">
+                        <label for="clean-text">待清除文本: <span class="char-count" id="clean-text-count">(0 字)</span></label>
+                        <textarea id="clean-text" rows="12" placeholder="在此输入或粘贴可能包含零宽字符的文本"></textarea>
+                    </div>
+                 </div>
+                 <div class="right-panel">
+                     <h2>清除结果</h2>
+                     <div class="form-group result-group">
+                        <label>已清除零宽字符的文本: <span class="char-count" id="clean-output-count">(0 字)</span></label>
+                        <!-- Using a <p> tag with .output-display class for consistency -->
+                        <p id="clean-output" class="output-display">[清除结果将显示在此处]</p>
+                        <!-- Optional: Add a copy button for the cleaned text -->
+                        <!-- A separate copy button specifically for the clean output would be good -->
+                         <button id="copy-clean-button" class="copy-button secondary">复制结果</button>
+                    </div>
+                 </div>
+             </div>
+             <div class="button-container">
+                <button id="clean-button" class="action-button primary">清除零宽字符</button>
              </div>
         </div>
 

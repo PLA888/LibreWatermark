@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tab switching logic
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
-    const statusMessage = document.getElementById('status-message'); // Get status message element
+    const statusMessage = document.getElementById('status-message');
 
-    // Function to show a specific tab
+    // Function to show a specific tab and reset content
     function showTab(tabId) {
         tabContents.forEach(content => {
             content.classList.remove('active');
@@ -20,38 +20,55 @@ document.addEventListener('DOMContentLoaded', () => {
              targetTab.classList.add('active');
         }
 
-        // Find the button corresponding to the tabId and activate it
         const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
         if (activeButton) {
              activeButton.classList.add('active');
         }
 
-         // Clear status message and output when switching tabs
+         // Clear status message on tab switch
         if (statusMessage) {
             statusMessage.textContent = '';
             statusMessage.className = 'status'; // Reset classes
         }
 
+        // Reset content and update counts for each tab
+        const embedTextInput = document.getElementById('embed-text');
+        const embedTextCountSpan = document.getElementById('embed-text-count');
         const embedOutputTextarea = document.getElementById('embed-output');
-        const extractOutputDisplay = document.getElementById('extract-output');
+        const embedOutputCountSpan = document.getElementById('embed-output-count');
         const copyButton = document.getElementById('copy-button');
-         const embedTextInput = document.getElementById('embed-text'); // Need these for counts
-         const embedTextCountSpan = document.getElementById('embed-text-count');
-         const embedOutputCountSpan = document.getElementById('embed-output-count');
 
+        const extractTextInput = document.getElementById('extract-text');
+        const extractOutputDisplay = document.getElementById('extract-output');
+
+        // 新增 清除零宽字符 Tab 元素
+        const cleanTextInput = document.getElementById('clean-text');
+        const cleanTextCountSpan = document.getElementById('clean-text-count');
+        const cleanOutputDisplay = document.getElementById('clean-output');
+        const cleanOutputCountSpan = document.getElementById('clean-output-count');
+
+        // Reset Embed tab
+        if (embedTextInput) updateCharCount(embedTextInput, embedTextCountSpan);
         if (embedOutputTextarea) embedOutputTextarea.value = '';
-        if (extractOutputDisplay) extractOutputDisplay.textContent = '[提取结果将显示在此处]';
-
-        // Disable copy button initially or when switching away from embed
+        if (embedOutputTextarea) updateCharCount(embedOutputTextarea, embedOutputCountSpan);
         if (copyButton) copyButton.disabled = true;
 
-         // Ensure counts are updated after tab switch
-         if (embedTextInput && embedTextCountSpan) updateCharCount(embedTextInput, embedTextCountSpan);
-         if (embedOutputTextarea && embedOutputCountSpan) updateCharCount(embedOutputTextarea, embedOutputCountSpan); // Output is empty initially, count will be 0
+        // Reset Extract tab
+        if (extractTextInput) updateCharCount(extractTextInput, document.getElementById('extract-text-count')); // Ensure extract has a count span too if needed (it doesn't in HTML yet, but good practice) - skip for now to match HTML
+        if (extractOutputDisplay) extractOutputDisplay.textContent = '[提取结果将显示在此处]';
 
+        // Reset Clean tab
+        if (cleanTextInput) {
+             cleanTextInput.value = '';
+            updateCharCount(cleanTextInput, cleanTextCountSpan);
+        }
+        if (cleanOutputDisplay) {
+             cleanOutputDisplay.textContent = '[清除结果将显示在此处]';
+             // No count span for clean output display in HTML yet, skip update
+         }
     }
 
-    // Add event listeners to tab buttons (using data-tab attribute)
+    // Add event listeners to tab buttons
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabId = button.getAttribute('data-tab');
@@ -61,38 +78,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Get DOM elements ---
-    // Embed elements
+    // --- Get DOM elements (Embed and Extract from previous version) ---
     const embedKeyInput = document.getElementById('embed-key');
     const embedWatermarkInput = document.getElementById('embed-watermark');
     const embedTextInput = document.getElementById('embed-text');
-    const embedTextCountSpan = document.getElementById('embed-text-count'); // 获取原始文本计数span
+    const embedTextCountSpan = document.getElementById('embed-text-count');
     const densitySlider = document.getElementById('density-slider');
     const densityValueSpan = document.getElementById('density-value');
     const embedButton = document.getElementById('embed-button');
     const embedOutputTextarea = document.getElementById('embed-output');
-    const embedOutputCountSpan = document.getElementById('embed-output-count'); // 获取带水印文本计数span
+    const embedOutputCountSpan = document.getElementById('embed-output-count');
     const copyButton = document.getElementById('copy-button');
 
-    // Extract elements
     const extractKeyInput = document.getElementById('extract-key');
     const extractTextInput = document.getElementById('extract-text');
+     // Assuming extract text input might need a count span too for consistency, let's add it's DOM query here IF it exists in HTML
+     const extractTextCountSpan = document.getElementById('extract-text-count'); // Check your HTML if this exists or add it
     const extractButton = document.getElementById('extract-button');
     const extractOutputDisplay = document.getElementById('extract-output');
 
+    // --- 新增 DOM elements for Clean tab ---
+    const cleanTextInput = document.getElementById('clean-text');
+    const cleanTextCountSpan = document.getElementById('clean-text-count'); // Check HTML if this exists or add it
+    const cleanButton = document.getElementById('clean-button');
+    const cleanOutputDisplay = document.getElementById('clean-output');
+    const cleanOutputCountSpan = document.getElementById('clean-output-count'); // Check HTML if this exists or add it (output is <p>, not textarea)
+
     // --- Event Listeners ---
 
-    // Density slider update
+    // Density slider update (Embed tab)
     if (densitySlider && densityValueSpan) {
         densitySlider.addEventListener('input', () => {
             densityValueSpan.textContent = densitySlider.value;
         });
     }
 
-    // Function to update character count for a textarea
-    function updateCharCount(textareaElement, countSpanElement) {
-        if (textareaElement && countSpanElement) {
-            const count = textareaElement.value.length;
+    // Function to update character count for a textarea or element with textContent
+    function updateCharCount(element, countSpanElement) {
+        if (element && countSpanElement) {
+            // Use .value for textarea/input, .textContent for others like <p>
+            const count = element.value !== undefined ? element.value.length : element.textContent.length;
             countSpanElement.textContent = `(${count} 字)`;
         }
     }
@@ -104,15 +129,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 片段1：修改嵌入按钮的点击事件处理逻辑，添加零宽字符检查
-    // Check all required elements exist before adding listener
+    // Embed output text count update (should happen after embed)
+    // This is called inside startEmbedding function now
+
+    // Extract text input count update (Add listener if span exists)
+     if (extractTextInput && extractTextCountSpan) {
+        extractTextInput.addEventListener('input', () => {
+            updateCharCount(extractTextInput, extractTextCountSpan);
+        });
+    }
+
+    // Clean text input count update
+     if (cleanTextInput && cleanTextCountSpan) {
+        cleanTextInput.addEventListener('input', () => {
+            updateCharCount(cleanTextInput, cleanTextCountSpan);
+        });
+    }
+
+     // Clean output display count update (should happen after clean)
+     // This will be called inside the clean button handler
+
+    // Embed Button Click Handler
     if (embedButton && embedKeyInput && embedWatermarkInput && embedTextInput && embedOutputTextarea && densitySlider && copyButton && statusMessage && embedTextCountSpan && embedOutputCountSpan) {
         embedButton.addEventListener('click', () => {
             const key = embedKeyInput.value;
             const watermark = embedWatermarkInput.value;
             let text = embedTextInput.value; // Use 'let' because we might modify it
-            const blockSize = parseInt(densitySlider.value, 10); // Get block size from slider
-            statusMessage.textContent = ''; // Clear previous status
+            const blockSize = parseInt(densitySlider.value, 10);
+            statusMessage.textContent = '';
             statusMessage.className = 'status';
 
             if (!key || !watermark || !text) {
@@ -121,8 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // --- Step 1: Check for pre-existing zero-width characters ---
-            // Ensure the functions exist before calling
+            // Check for pre-existing zero-width characters
             if (typeof containsZeroWidthChars === 'function' && typeof cleanZeroWidthChars === 'function' && containsZeroWidthChars(text)) {
                 const confirmClean = confirm(
                     "检测到原始文本中包含零宽字符，它们可能会干扰水印的嵌入和提取。\n\n" +
@@ -132,81 +175,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (confirmClean) {
                     text = cleanZeroWidthChars(text);
-                    embedTextInput.value = text; // Update the textarea with cleaned text
-                    updateCharCount(embedTextInput, embedTextCountSpan); // Update count for cleaned text
+                    embedTextInput.value = text;
+                    updateCharCount(embedTextInput, embedTextCountSpan);
                     statusMessage.textContent = '已清除原始文本中的零宽字符。';
-                    statusMessage.className = 'status info'; // Use info class
-                     // Small delay before proceeding to embedding process
+                    statusMessage.className = 'status info';
                      setTimeout(() => startEmbedding(key, watermark, text, blockSize), 50);
                 } else {
                     statusMessage.textContent = '操作已取消。';
-                    statusMessage.className = 'status warning'; // Use warning class
-                    // Re-enable button if it was disabled (though usually not disabled yet here)
+                    statusMessage.className = 'status warning';
                      embedButton.disabled = false;
                 }
             } else {
-                 // No zero-width characters found, or functions are missing, proceed directly to embedding
                  startEmbedding(key, watermark, text, blockSize);
             }
         });
     } else {
         console.error("One or more embed elements not found!");
-        // Optionally display a user-friendly error on the page if critical elements are missing
          if(statusMessage) {
-             statusMessage.textContent = '页面加载错误，部分功能无法使用。请刷新重试。';
+             statusMessage.textContent = '页面加载错误，部分功能无法使用。';
              statusMessage.classList.add('error');
          }
     }
 
-    // Function to handle the actual embedding process (moved from click handler)
+    // Function to handle the actual embedding process
     function startEmbedding(key, watermark, text, blockSize) {
-         // Disable button during processing
         embedButton.disabled = true;
         statusMessage.textContent = '正在嵌入水印...';
-        statusMessage.className = 'status info'; // Ensure correct classes
+        statusMessage.className = 'status info';
 
-        // Use setTimeout to allow UI to update before heavy processing
         setTimeout(() => {
             try {
-                // Ensure embedWatermark function exists
                  if (typeof embedWatermark !== 'function') {
                      throw new Error("Watermark embedding function is not available.");
                  }
-                // Pass block size to embedWatermark
                 const resultText = embedWatermark(text, key, watermark, blockSize);
                 embedOutputTextarea.value = resultText;
-                updateCharCount(embedOutputTextarea, embedOutputCountSpan); // 更新输出文本框计数
+                updateCharCount(embedOutputTextarea, embedOutputCountSpan);
                 statusMessage.textContent = '水印嵌入成功！';
                 statusMessage.classList.add('success');
 
-                // Enable copy button
                 copyButton.disabled = false;
 
             } catch (error) {
                 console.error("Embedding failed:", error);
                 statusMessage.textContent = `嵌入失败：${error.message}`;
                 statusMessage.classList.add('error');
-                embedOutputTextarea.value = ''; // Clear output on error
-                copyButton.disabled = true; // Disable copy on error
-                updateCharCount(embedOutputTextarea, embedOutputCountSpan); // Update count to 0
+                embedOutputTextarea.value = '';
+                copyButton.disabled = true;
+                updateCharCount(embedOutputTextarea, embedOutputCountSpan);
             } finally {
-                 // Re-enable button
                  embedButton.disabled = false;
             }
-        }, 10); // Small delay
+        }, 10);
     }
-// 片段1'
 
-// 片段2：复制按钮和提取按钮逻辑不变
-    // Copy Button Click
+    // Copy Button Click Handler
     if (copyButton && embedOutputTextarea && statusMessage) {
         copyButton.addEventListener('click', () => {
             if (embedOutputTextarea.value) {
                 navigator.clipboard.writeText(embedOutputTextarea.value)
                     .then(() => {
                         statusMessage.textContent = '结果已复制到剪贴板！';
-                        statusMessage.classList.add('info');
-                        // Optional: clear status after a few seconds
+                        statusMessage.className = 'status info'; // Use correct class
                          setTimeout(() => {
                               statusMessage.textContent = '';
                               statusMessage.className = 'status';
@@ -219,21 +249,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
             } else {
                  statusMessage.textContent = '没有可复制的内容。';
-                 statusMessage.classList.add('warning');
+                 statusMessage.className = 'status warning';
             }
         });
     } else {
-         console.error("Copy button or output textarea not found!");
+         console.error("Copy button or embed output textarea not found!");
     }
 
-    // Extract Button Click
+    // Extract Button Click Handler
      if (extractButton && extractKeyInput && extractTextInput && extractOutputDisplay && statusMessage) {
         extractButton.addEventListener('click', () => {
             const key = extractKeyInput.value;
             const text = extractTextInput.value;
-            statusMessage.textContent = ''; // Clear previous status
+            statusMessage.textContent = '';
             statusMessage.className = 'status';
-            extractOutputDisplay.textContent = '[提取结果将显示在此处]'; // Reset output display
+            extractOutputDisplay.textContent = '[提取结果将显示在此处]';
 
             if (!key || !text) {
                 statusMessage.textContent = '错误：密钥和待提取文本不能为空！';
@@ -241,15 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-             // Disable button during processing
             extractButton.disabled = true;
              statusMessage.textContent = '正在尝试提取水印...';
              statusMessage.classList.add('info');
 
-            // Use setTimeout to allow UI to update before heavy processing
             setTimeout(() => {
                  try {
-                     // Ensure extractWatermark function exists
                       if (typeof extractWatermark !== 'function') {
                          throw new Error("Watermark extraction function is not available.");
                       }
@@ -265,37 +292,78 @@ document.addEventListener('DOMContentLoaded', () => {
                          statusMessage.classList.add('warning');
                      }
                  } catch (error) {
-                     // This might catch errors from binaryToString if data is severely corrupted
                       console.error("Extraction failed:", error);
                       statusMessage.textContent = `提取过程中发生错误：${error.message}`;
                       statusMessage.classList.add('error');
                       extractOutputDisplay.textContent = '[提取失败]';
                  } finally {
-                     // Re-enable button
                      extractButton.disabled = false;
                  }
-            }, 10); // Small delay
+            }, 10);
 
         });
      } else {
          console.error("One or more extract elements not found!");
-          // Optionally display a user-friendly error on the page if critical elements are missing
           if(statusMessage) {
-              statusMessage.textContent = '页面加载错误，部分功能无法使用。请刷新重试。';
+              statusMessage.textContent = '页面加载错误，部分功能无法使用。';
               statusMessage.classList.add('error');
           }
      }
 
+     // --- 新增 Clean Button Click Handler ---
+    if (cleanButton && cleanTextInput && cleanOutputDisplay && statusMessage && cleanTextCountSpan && cleanOutputCountSpan) {
+         cleanButton.addEventListener('click', () => {
+            const text = cleanTextInput.value;
+            statusMessage.textContent = '';
+            statusMessage.className = 'status';
+            cleanOutputDisplay.textContent = '[清除结果将显示在此处]'; // Reset output display
+
+            if (!text) {
+                statusMessage.textContent = '错误：请粘贴需要清除零宽字符的文本！';
+                statusMessage.classList.add('error');
+                return;
+            }
+
+             cleanButton.disabled = true;
+             statusMessage.textContent = '正在清除零宽字符...';
+             statusMessage.classList.add('info');
+
+            setTimeout(() => {
+                 try {
+                      if (typeof cleanZeroWidthChars !== 'function') {
+                         throw new Error("Zero-width cleaning function is not available.");
+                      }
+                     const cleanedText = cleanZeroWidthChars(text);
+
+                    cleanOutputDisplay.textContent = cleanedText;
+                    updateCharCount(cleanOutputDisplay, cleanOutputCountSpan); // Update count for the clean output display
+                    statusMessage.textContent = '零宽字符清除成功！';
+                    statusMessage.classList.add('success');
+
+                 } catch (error) {
+                      console.error("Cleaning failed:", error);
+                      statusMessage.textContent = `清除过程中发生错误：${error.message}`;
+                      statusMessage.classList.add('error');
+                      cleanOutputDisplay.textContent = '[清除失败]';
+                       updateCharCount(cleanOutputDisplay, cleanOutputCountSpan); // Update count to reflect failure
+                 } finally {
+                     cleanButton.disabled = false;
+                 }
+            }, 10);
+         });
+    } else {
+         console.error("One or more clean elements not found!");
+          if(statusMessage) {
+              statusMessage.textContent = '页面加载错误，部分功能无法使用。';
+              statusMessage.classList.add('error');
+          }
+    }
+
     // Initial setup: show the 'embed' tab by default and set initial slider value display
-     showTab('embed'); // This now uses the function above
+     showTab('embed');
      if (densityValueSpan && densitySlider) {
-         densityValueSpan.textContent = densitySlider.value; // Initialize density value display
+         densityValueSpan.textContent = densitySlider.value;
      }
-     // Copy button initial state is handled within showTab now
 
-    // Initial counts (moved into showTab function for better reset on tab change)
-    // updateCharCount(embedTextInput, embedTextCountSpan);
-    // updateCharCount(embedOutputTextarea, embedOutputCountSpan);
-
-}); // End DOMContentLoaded
-// 片段2'
+     // Initial counts and other resets are now handled by showTab('embed')
+});

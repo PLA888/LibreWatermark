@@ -4,7 +4,8 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
+    /* 新配色方案：浅绿色调背景 */
+    background-color: #f8fdfa; /* Very light green-blue */
     color: #333;
     min-height: 100vh;
     display: flex;
@@ -14,9 +15,10 @@ body {
 }
 
 .container {
-    max-width: 1000px; /* Increased max-width for more space */
+    max-width: 1000px;
     width: 95%;
     margin: 30px auto 20px auto;
+    /* Container 背景保持白色，与新背景区分 */
     background: #fff;
     padding: 30px 40px;
     border-radius: 12px;
@@ -30,29 +32,31 @@ header {
 }
 
 h1 {
-    color: #007bff;
+    /* 新配色方案：主要标题颜色 */
+    color: #5ac1a6; /* Minty teal */
     margin-bottom: 0.3em;
-    font-size: 2.2em; /* Slightly larger heading */
+    font-size: 2.2em;
 }
 
 h2 {
-     color: #555;
+     /* 新配色方案：次要标题颜色 */
+     color: #4a4a4a; /* Slightly softer dark gray */
      margin-top: 0;
-     margin-bottom: 1em; /* Reduced bottom margin */
-     font-size: 1.5em; /* Slightly larger sub-heading */
+     margin-bottom: 1em;
+     font-size: 1.5em;
      border-bottom: 1px solid #eee;
-     padding-bottom: 8px; /* Reduced padding */
-     font-weight: normal; /* Less bold */
+     padding-bottom: 8px;
+     font-weight: normal;
 }
 
 .warning-note {
     text-align: center;
-    color: #e65100; /* Darker orange */
+    color: #e65100;
     margin-top: 1.5em;
     margin-bottom: 2.5em;
-    font-size: 0.95em; /* Slightly larger warning font */
-    background-color: #fff8e1; /* Lighter background */
-    padding: 12px; /* More padding */
+    font-size: 0.95em;
+    background-color: #fff8e1;
+    padding: 12px;
     border-left: 4px solid #e65100;
     border-radius: 4px;
 }
@@ -61,37 +65,41 @@ h2 {
 .tabs {
     display: flex;
     margin-bottom: 25px;
-    border-bottom: 2px solid #007bff;
+    /* 新配色方案：Tab 下边框颜色 */
+    border-bottom: 2px solid #5ac1a6;
     justify-content: center;
     padding-bottom: 0;
-    flex-wrap: wrap; /* Allow tabs to wrap */
+    flex-wrap: wrap;
 }
 
 .tab-button {
     padding: 12px 25px;
     cursor: pointer;
     border: none;
-    background-color: #e9ecef;
+    /* 新配色方案：非激活 Tab 背景 */
+    background-color: #e0f2f4; /* Very light cool gray/blue */
     margin: 0 3px;
     border-radius: 8px 8px 0 0;
     font-size: 1em;
     font-weight: bold;
     transition: background-color 0.3s ease, color 0.3s ease;
-    flex-grow: 1; /* Allow tabs to grow when wrapped */
-    text-align: center; /* Center text in tabs */
-    min-width: 120px; /* Ensure minimum width */
+    flex-grow: 1;
+    text-align: center;
+    min-width: 120px;
 }
 
 .tab-button:hover:not(.active) {
-    background-color: #dee2e6;
+    background-color: #c7e6ea; /* Slightly darker hover */
 }
 
 .tab-button.active {
-    background-color: #007bff;
+    /* 新配色方案：激活 Tab 背景和文本颜色 */
+    background-color: #5ac1a6;
     color: white;
     position: relative;
     bottom: -2px;
-    border-bottom: 2px solid #007bff;
+    /* 新配色方案：激活 Tab 下边框颜色 */
+    border-bottom: 2px solid #5ac1a6;
 }
 
 /* Tab Content Styling */
@@ -107,24 +115,24 @@ h2 {
 /* Two-Column Layout */
 .content-layout {
     display: flex;
-    gap: 40px; /* Space between columns */
+    gap: 40px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+    flex-wrap: wrap;
 }
 
 .left-panel,
 .right-panel {
-    flex: 1; /* Grow equally */
-    min-width: 300px; /* Minimum width before wrapping */
-    display: flex; /* Use flexbox within panel */
-    flex-direction: column; /* Stack content inside panels */
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Make textareas fill available height in columns */
 .left-panel textarea,
 .right-panel textarea {
-    flex-grow: 1; /* Allow textareas to take available vertical space */
-    min-height: 150px; /* Ensure a minimum height */
+    flex-grow: 1;
+    min-height: 150px;
 }
 
 .form-group {
@@ -132,9 +140,9 @@ h2 {
 }
 
 label {
-    display: flex; /* 使用flexbox布局 */
-    justify-content: space-between; /* 将子元素（文本和span）推到两端 */
-    align-items: center; /* 垂直居中子元素 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     font-weight: bold;
     color: #555;
@@ -143,11 +151,11 @@ label {
 
 /* 字符计数span样式 */
 .char-count {
-    font-weight: normal; /* 计数不加粗 */
-    font-size: 0.9em; /* 字号小一点 */
-    color: #6c757d; /* 灰色 */
-    margin-left: 10px; /* 与标签文本的间距 */
-    flex-shrink: 0; /* 防止在空间不足时被压缩 */
+    font-weight: normal;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 input[type="text"],
@@ -167,9 +175,10 @@ textarea {
 input[type="text"]:focus,
 input[type="password"]:focus,
 textarea:focus {
-    border-color: #80bdff;
+    /* 新配色方案：焦点状态边框和阴影 */
+    border-color: #99d5c9; /* Lighter teal */
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(90, 193, 166, 0.25); /* Use the primary color with transparency */
 }
 
 /* Slider Specific Styling */
@@ -198,7 +207,8 @@ input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     width: 20px;
     height: 20px;
-    background: #007bff;
+    /* 新配色方案：Slider Thumb 颜色 */
+    background: #5ac1a6;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
@@ -207,7 +217,8 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
-    background: #007bff;
+    /* 新配色方案：Slider Thumb 颜色 */
+    background: #5ac1a6;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
@@ -215,7 +226,7 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover,
 input[type="range"]::-moz-range-thumb:hover {
-     background: #0056b3;
+     background: #45a08c; /* Darker on hover */
 }
 
 #density-value {
@@ -223,7 +234,8 @@ input[type="range"]::-moz-range-thumb:hover {
     width: 50px;
     text-align: right;
     font-weight: bold;
-    color: #007bff;
+    /* 新配色方案：Slider 值颜色 */
+    color: #5ac1a6;
     font-variant-numeric: tabular-nums;
 }
 
@@ -237,8 +249,8 @@ small {
 /* Buttons */
 .button-container {
     text-align: center;
-    margin-top: 15px; /* Adjusted margin */
-    margin-bottom: 15px; /* Adjusted margin */
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .action-button {
@@ -253,12 +265,13 @@ small {
 }
 
 .action-button.primary {
-     background-color: #007bff;
+     /* 新配色方案：主按钮北京颜色 */
+     background-color: #5ac1a6;
      color: white;
 }
 
 .action-button.primary:hover {
-    background-color: #0056b3;
+    background-color: #45a08c; /* Darker on hover */
 }
 
 .action-button:disabled {
@@ -284,9 +297,9 @@ small {
     background-color: #5a6268;
 }
 
-/* Output Display */
+/* Output Display (for p elements acting as display) */
 .output-display {
-    background-color: #e9ecef;
+    background-color: #e9ecef; /* Keep light gray background */
     padding: 15px;
     border-radius: 6px;
     min-height: 5em;
@@ -294,10 +307,10 @@ small {
     white-space: pre-wrap;
     border: 1px solid #ced4da;
     color: #495057;
-    overflow: auto; /* Use auto instead of overflow-x */
+    overflow: auto;
     font-size: 0.95em;
-    flex-grow: 1; /* Allow display to grow */
-    display: block; /* Ensure it behaves like a block */
+    flex-grow: 1;
+    display: block;
 }
 
 /* Status Messages */
@@ -320,6 +333,7 @@ small {
     margin-bottom: 0;
 }
 
+/* Standard status colors - keeping for clarity */
 .status.info {
      color: #0c5460;
      background-color: #d1ecf1;
@@ -343,56 +357,57 @@ small {
 
 /* Footer */
 footer {
-    margin-top: 30px; /* More space above footer */
-    padding: 20px; /* More padding */
+    margin-top: 30px;
+    padding: 20px;
     text-align: center;
     color: #6c757d;
     font-size: 0.9em;
-    width: 100%; /* Full width footer */
-    flex-shrink: 0; /* Prevent footer from shrinking */
+    width: 100%;
+    flex-shrink: 0;
 }
 
 footer a {
-    color: #007bff; /* Link color */
-    text-decoration: none; /* Remove underline */
+    /* Keep link color standard blue for familiarity or change? Keep standard blue */
+    color: #007bff;
+    text-decoration: none;
     transition: color 0.3s ease;
 }
 
 footer a:hover {
-    color: #0056b3; /* Darker on hover */
-    text-decoration: underline; /* Add underline on hover */
+    color: #0056b3;
+    text-decoration: underline;
 }
 
 /* Responsive adjustments */
-@media (max-width: 850px) { /* Adjusted breakpoint slightly */
+@media (max-width: 850px) {
     .container {
-        padding: 25px 25px; /* Less padding on smaller screens */
+        padding: 25px 25px;
     }
     .content-layout {
-        flex-direction: column; /* Stack columns vertically */
-        gap: 30px; /* Gap between stacked columns */
+        flex-direction: column;
+        gap: 30px;
     }
 
     .left-panel,
     .right-panel {
-        min-width: auto; /* Remove min-width constraint */
+        min-width: auto;
     }
 
     .action-button {
-        width: 100%; /* Full width buttons */
+        width: 100%;
         min-width: auto;
-        padding: 12px 20px; /* Slightly less padding */
+        padding: 12px 20px;
     }
 
      .tab-button {
-         margin: 0 2px 5px 2px; /* Adjust margin when wrapped */
+         margin: 0 2px 5px 2px;
      }
 
      h1 { font-size: 1.8em; }
      h2 { font-size: 1.3em; }
 }
 
-@media (max-width: 480px) { /* Even smaller screens */
+@media (max-width: 480px) {
      .container {
          padding: 15px 15px;
      }
