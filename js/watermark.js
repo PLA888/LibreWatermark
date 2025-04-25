@@ -1,11 +1,11 @@
-// Core blind watermark logic
+// 核心盲水印逻辑
 
-const ZERO_WIDTH_SPACE = '\u200b'; // Represents bit '0'
-const ZERO_WIDTH_NON_JOINER = '\u200c'; // Represents bit '1'
+const ZERO_WIDTH_SPACE = '\u200b'; // 表示比特'0'
+const ZERO_WIDTH_NON_JOINER = '\u200c'; // 表示比特'1'
 const AUTH_CODE_BITS = 32;
 
-// --- Pseudo-Random Number Generator (PRNG) ---
-// Simple hash function for seed
+// --- 伪随机数生成器 (PRNG) ---
+// 用于种子的简单哈希函数
 function simpleHash(str) {
     let hash = 5381;
     for (let i = 0; i < str.length; i++) {
@@ -14,10 +14,10 @@ function simpleHash(str) {
     hash = (hash ^ (hash >>> 16)) * 2246822507;
     hash = (hash ^ (hash >>> 13)) * 3266489917;
     hash = (hash ^ (hash >>> 16));
-    return hash >>> 0; // Positive integer
+    return hash >>> 0; // 正整数
 }
 
-// Simple LCG PRNG class
+// 简单的线性同余生成器 PRNG 类
 class SimpleLCG {
     constructor(seed) {
         this.seed = typeof seed === 'number' ? seed >>> 0 : simpleHash(String(seed)) >>> 0;
@@ -35,17 +35,17 @@ class SimpleLCG {
         if (range <= 0) return min;
         return min + (this.nextInt() % range);
     }
-    shuffleArray(array) { // Fisher-Yates seeded
+    shuffleArray(array) { // Fisher-Yates 随机洗牌算法（使用种子）
         for (let i = array.length - 1; i > 0; i--) {
-            const j = this.nextIntRange(0, i + 1); // 0 to i inclusive
+            const j = this.nextIntRange(0, i + 1); // 0 到 i 闭区间
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
-    nextBit() { return this.nextIntRange(0, 2); } // 0 or 1
+    nextBit() { return this.nextIntRange(0, 2); } // 0 或 1
 }
 
-// --- String <-> Binary Conversion ---
-// String to binary string (UTF-8)
+// --- 字符串 <-> 二进制转换 ---
+// 字符串转二进制字符串 (UTF-8)
 function stringToBinary(input) {
     const encoder = new TextEncoder();
     const uint8Array = encoder.encode(input);
@@ -56,7 +56,7 @@ function stringToBinary(input) {
     return binaryString;
 }
 
-// Binary string to string (UTF-8)
+// 二进制字符串转字符串 (UTF-8)
 function binaryToString(binaryInput) {
      if (binaryInput.length % 8 !== 0) {
         throw new Error("无效的二进制字符串长度，无法进行UTF-8解码。");
@@ -79,8 +79,8 @@ function binaryToString(binaryInput) {
     }
 }
 
-// --- Authentication Code Generation ---
-// Generates auth code based on watermark binary and key
+// --- 认证码生成 ---
+// 基于水印二进制数据和密钥生成认证码
 function generateAuthCode(watermarkBinary, secretKey) {
     const seed1 = simpleHash(secretKey + "_auth_seed_1_data_mix");
     const seed2 = simpleHash(secretKey + "_auth_seed_2_final_hash");
@@ -131,13 +131,13 @@ function generateAuthCode(watermarkBinary, secretKey) {
          authCodeBinary += finalByte.toString(2).padStart(8, '0');
     }
 
-    return authCodeBinary; // Binary string of length AUTH_CODE_BITS
+    return authCodeBinary; // 长度为 AUTH_CODE_BITS 的二进制字符串
 }
 
 /**
- * Checks if a string contains any zero-width characters.
- * @param {string} text
- * @returns {boolean} True if zero-width characters are found.
+ * 检查字符串是否包含零宽字符
+ * @param {string} text 要检查的文本
+ * @returns {boolean} 如果找到零宽字符则返回 true
  */
 function containsZeroWidthChars(text) {
     const zeroWidthRegex = /[\u200B-\u200D\uFEFF]/g;
@@ -145,9 +145,9 @@ function containsZeroWidthChars(text) {
 }
 
 /**
- * Removes all zero-width characters from a string.
- * @param {string} text
- * @returns {string} Cleaned string.
+ * 从字符串中移除所有零宽字符
+ * @param {string} text 要处理的文本
+ * @returns {string} 清除后的字符串
  */
 function cleanZeroWidthChars(text) {
     const zeroWidthRegex = /[\u200B-\u200D\uFEFF]/g;
@@ -155,13 +155,13 @@ function cleanZeroWidthChars(text) {
 }
 
 /**
- * Embeds a watermark into text using zero-width characters in blocks.
- * @param {string} originalText Text to embed into.
- * @param {string} secretKey Key for PRNG.
- * @param {string} watermarkText Watermark content.
- * @param {number} blockSize Block size for embedding distribution.
- * @returns {string} Text with watermark.
- * @throws {Error} If input is invalid or text is too short.
+ * 使用零宽字符将水印嵌入文本的分块中
+ * @param {string} originalText 要嵌入的原始文本
+ * @param {string} secretKey PRNG 的密钥
+ * @param {string} watermarkText 水印内容
+ * @param {number} blockSize 嵌入分布的块大小
+ * @returns {string} 带有水印的文本
+ * @throws {Error} 如果输入无效或文本太短
  */
 function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
     if (!originalText || !secretKey || !watermarkText) {
@@ -191,7 +191,7 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
          console.warn(`警告：水印负载 (${payloadBits} 比特) 大于单个分块 (${blockSize} 字符) 的最大可能插入点 (${blockSize + 1})。在很短的文本片段中可能无法可靠提取。`);
      }
 
-    // Keystream for scrambling
+    // 用于混淆的密钥流
     const streamSeed = simpleHash(secretKey + "_stream_seed");
     const prngForStream = new SimpleLCG(streamSeed);
 
@@ -200,20 +200,20 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
          keystream += prngForStream.nextBit();
      }
 
-    // Scramble the full payload
+    // 混淆完整的负载
     let scrambledPayload = '';
     for (let i = 0; i < payloadBits; i++) {
         const payloadBit = parseInt(fullBinaryPayload[i], 10);
         const keyBit = parseInt(keystream[i], 10);
-        scrambledPayload += (payloadBit ^ keyBit).toString(); // XOR scrambling
+        scrambledPayload += (payloadBit ^ keyBit).toString(); // XOR 混淆
     }
 
-    // Map scrambled bits to Zero-Width characters
+    // 将混淆后的位映射到零宽字符
     const zwChars = scrambledPayload.split('').map(bit =>
         bit === '0' ? ZERO_WIDTH_SPACE : ZERO_WIDTH_NON_JOINER
     );
 
-    // Embed the ZW string into the original text in blocks
+    // 将零宽字符串以分块方式嵌入原始文本
     let resultText = '';
     const originalTextLength = originalText.length;
     const numBlocks = Math.ceil(originalTextLength / blockSize);
@@ -228,7 +228,7 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
 
         const zwCharsForThisChunk = zwChars.slice(0, indicesToPick);
 
-        // Generate insertion positions for this block using a distinct PRNG sequence
+        // 为此块生成插入位置，使用不同的 PRNG 序列
         const positionSeed = simpleHash(secretKey + "_pos_seed_" + i);
         const prngForPosition = new SimpleLCG(positionSeed);
 
@@ -236,9 +236,9 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
 
         prngForPosition.shuffleArray(possibleIndices);
         const insertionIndices = possibleIndices.slice(0, indicesToPick);
-        insertionIndices.sort((a, b) => a - b); // Sort indices for sequential insertion
+        insertionIndices.sort((a, b) => a - b); // 对索引进行排序以便按顺序插入
 
-        // Insert ZW characters into the text chunk
+        // 将零宽字符插入到文本块中
         let chunkWithZW = '';
         let textChunkIndex = 0;
         let insertionIndexPointer = 0;
@@ -261,10 +261,10 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
 }
 
 /**
- * Extracts a watermark from text using the secret key.
- * @param {string} textWithWatermark Text potentially containing watermark.
- * @param {string} secretKey Key used during embedding.
- * @returns {string | null} Extracted watermark or null.
+ * 使用密钥从文本中提取水印
+ * @param {string} textWithWatermark 可能包含水印的文本
+ * @param {string} secretKey 嵌入时使用的密钥
+ * @returns {string | null} 提取的水印，如果未找到则返回 null
  */
 function extractWatermark(textWithWatermark, secretKey) {
     if (!textWithWatermark || !secretKey) {
@@ -272,7 +272,7 @@ function extractWatermark(textWithWatermark, secretKey) {
         return null;
     }
 
-    // 1. Scan ALL ZW characters in order
+    // 1. 按顺序扫描所有零宽字符
     let extractedZWString = '';
     const zeroWidthRegex = /[\u200B-\u200D\uFEFF]/g;
     let match;
@@ -285,19 +285,19 @@ function extractWatermark(textWithWatermark, secretKey) {
         return null;
     }
 
-    // Convert extracted ZW string to binary bitstring
+    // 将提取的零宽字符串转换为二进制位字符串
     const extractedBits = extractedZWString.split('').map(char =>
         char === ZERO_WIDTH_SPACE ? '0' : '1'
     ).join('');
 
-    // Minimum payload length
+    // 最小负载长度
     const minPayloadBits = 16 + 1 + AUTH_CODE_BITS;
     if (extractedBits.length < minPayloadBits) {
          console.log(`提取到的零宽字符序列 (${extractedBits.length} 比特) 太短，不足以包含完整的水印 payload (至少 ${minPayloadBits} 比特)。`);
          return null;
     }
 
-    // 2. Iterate through extracted bits, trying to decode payloads
+    // 2. 遍历提取的位，尝试解码负载
     const streamSeed = simpleHash(secretKey + "_stream_seed");
 
     for (let i = 0; i <= extractedBits.length - minPayloadBits; i++) {
@@ -305,10 +305,10 @@ function extractWatermark(textWithWatermark, secretKey) {
 
         if (currentBitsSlice.length < minPayloadBits) continue;
 
-        // Use a NEW PRNG instance for EACH decoding attempt, seeded with the secret key.
+        // 对每次解码尝试使用新的 PRNG 实例，用密钥作为种子
         const prngForStreamAttempt = new SimpleLCG(streamSeed);
 
-        // --- Decode Length Prefix (16 bits) ---
+        // --- 解码长度前缀（16位）---
         let potentialLengthBinary = '';
         for (let k = 0; k < 16; k++) {
              if (k >= currentBitsSlice.length) {
@@ -334,7 +334,7 @@ function extractWatermark(textWithWatermark, secretKey) {
             continue;
         }
 
-        // --- Decode Watermark Data ---
+        // --- 解码水印数据 ---
         let potentialWatermarkBinary = '';
         const dataStartIndex = 16;
         for (let k = 0; k < potentialWatermarkLength; k++) {
@@ -345,7 +345,7 @@ function extractWatermark(textWithWatermark, secretKey) {
         }
          if (potentialWatermarkBinary.length !== potentialWatermarkLength) continue;
 
-        // --- Decode Authentication Code ---
+        // --- 解码认证码 ---
         let extractedAuthBinary = '';
          const authStartIndex = dataStartIndex + potentialWatermarkLength;
         for (let k = 0; k < AUTH_CODE_BITS; k++) {
@@ -356,7 +356,7 @@ function extractWatermark(textWithWatermark, secretKey) {
         }
         if (extractedAuthBinary.length !== AUTH_CODE_BITS) continue;
 
-        // 3. Verify Authentication Code
+        // 3. 验证认证码
         const expectedAuthBinary = generateAuthCode(potentialWatermarkBinary, secretKey);
 
         if (extractedAuthBinary === expectedAuthBinary) {
@@ -374,5 +374,5 @@ function extractWatermark(textWithWatermark, secretKey) {
     return null;
 }
 
-// Export functions if needed for module usage
+// 如需模块使用，可导出这些函数
 // export { embedWatermark, extractWatermark, containsZeroWidthChars, cleanZeroWidthChars };

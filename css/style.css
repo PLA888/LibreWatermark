@@ -1,12 +1,12 @@
-/* Basic Reset and Body Styling */
+/* 基础重置和主体样式 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
     /* 新增页面渐变背景 */
-    background: linear-gradient(to bottom right, #e0f2f4, #f8fdfa); /* Gentle gradient from light blue-gray to very light green-blue */
-    background-attachment: fixed; /* Ensure gradient covers entire viewport even with scrolling */
+    background: linear-gradient(to bottom right, #e0f2f4, #f8fdfa); /* 从浅蓝灰到非常浅的绿蓝的柔和渐变 */
+    background-attachment: fixed; /* 确保渐变在滚动时覆盖整个视口 */
     color: #333;
     min-height: 100vh;
     display: flex;
@@ -34,13 +34,13 @@ header {
 }
 
 h1 {
-    color: #5ac1a6; /* Minty teal */
+    color: #5ac1a6; /* 薄荷茶色 */
     margin-bottom: 0.3em;
     font-size: 2.2em;
 }
 
 h2 {
-     color: #4a4a4a; /* Slightly softer dark gray */
+     color: #4a4a4a; /* 稍微柔和的深灰色 */
      margin-top: 0;
      margin-bottom: 1em;
      font-size: 1.5em;
@@ -61,7 +61,7 @@ h2 {
     border-radius: 4px;
 }
 
-/* Tabs Styling */
+/* 标签样式 */
 .tabs {
     display: flex;
     margin-bottom: 25px;
@@ -75,7 +75,7 @@ h2 {
     padding: 12px 25px;
     cursor: pointer;
     border: none;
-    background-color: #e0f2f4; /* Very light cool gray/blue */
+    background-color: #e0f2f4; /* 非常浅的冷灰/蓝色 */
     margin: 0 3px;
     border-radius: 8px 8px 0 0;
     font-size: 1em;
@@ -87,7 +87,7 @@ h2 {
 }
 
 .tab-button:hover:not(.active) {
-    background-color: #c7e6ea; /* Slightly darker hover */
+    background-color: #c7e6ea; /* 悬停时稍微深一点 */
 }
 
 .tab-button.active {
@@ -98,7 +98,7 @@ h2 {
     border-bottom: 2px solid #5ac1a6;
 }
 
-/* Tab Content Styling */
+/* 标签内容样式 */
 .tab-content {
     display: none;
     padding-top: 25px;
@@ -109,7 +109,7 @@ h2 {
     display: block;
 }
 
-/* Two-Column Layout */
+/* 两列布局 */
 .content-layout {
     display: flex;
     gap: 40px;
@@ -132,7 +132,7 @@ h2 {
     flex-grow: 1;
 }
 
-/* Make textareas fill available height in columns */
+/* 使文本区域在列中填充可用高度 */
 .left-panel textarea,
 .right-panel textarea {
     flex-grow: 1;
@@ -156,7 +156,7 @@ label {
     flex-shrink: 0;
 }
 
-/* Character count span style */
+/* 字符计数跨度样式 */
 .char-count {
     font-weight: normal;
     font-size: 0.9em;
@@ -182,12 +182,12 @@ textarea {
 input[type="text"]:focus,
 input[type="password"]:focus,
 textarea:focus {
-    border-color: #99d5c9; /* Lighter teal */
+    border-color: #99d5c9; /* 较浅的茶色 */
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(90, 193, 166, 0.25); /* Use the primary color with transparency */
+    box-shadow: 0 0 0 0.2rem rgba(90, 193, 166, 0.25); /* 使用带透明度的主色 */
 }
 
-/* Slider Specific Styling */
+/* 滑块特定样式 */
 .slider-container {
      display: flex;
      align-items: center;
@@ -234,7 +234,7 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover,
 input[type="range"]::-moz-range-thumb:hover {
-     background: #45a08c; /* Darker on hover */
+     background: #45a08c; /* 悬停时较深 */
 }
 
 #density-value {
@@ -254,7 +254,7 @@ small {
     margin-top: 5px;
 }
 
-/* Buttons */
+/* 按钮 */
 .button-container {
     text-align: center;
     margin-top: 15px;
@@ -278,7 +278,7 @@ small {
 }
 
 .action-button.primary:hover {
-    background-color: #45a08c; /* Darker on hover */
+    background-color: #45a08c; /* 悬停时较深 */
 }
 
 .action-button:disabled {
@@ -304,9 +304,9 @@ small {
     background-color: #5a6268;
 }
 
-/* Output Display (for p elements acting as display) */
+/* 输出显示（用作显示的p元素） */
 .output-display {
-    background-color: #e9ecef; /* Keep light gray background */
+    background-color: #e9ecef; /* 保持浅灰色背景 */
     padding: 15px;
     border-radius: 6px;
     min-height: 5em;
@@ -321,10 +321,10 @@ small {
     margin-bottom: 10px;
 }
 textarea#embed-output {
-    min-height: 150px; /* Match input textarea height */
+    min-height: 150px; /* 匹配输入文本区域高度 */
 }
 
-/* --- Notification Container and Boxes --- */
+/* --- 通知容器和框 --- */
 
 #notification-container {
     position: fixed;
@@ -460,7 +460,7 @@ textarea#embed-output {
      border-left: 4px solid #dc3545;
 }
 
-/* Footer */
+/* 页脚 */
 footer {
     margin-top: 30px;
     padding: 20px;
@@ -482,7 +482,7 @@ footer a:hover {
     text-decoration: underline;
 }
 
-/* Responsive adjustments */
+/* 响应式调整 */
 @media (max-width: 850px) {
     .container {
         padding: 25px 25px;
@@ -517,11 +517,11 @@ footer a:hover {
      #notification-container {
          top: 10px;
          right: 10px;
-         left: 10px; /* notifications take full width minus margins */
+         left: 10px; /* 通知占据全宽减去边距 */
          max-width: none;
      }
      .notification-box {
-          max-width: none; /* Allow full width on small screens */
+          max-width: none; /* 在小屏幕上允许全宽 */
      }
 }
 

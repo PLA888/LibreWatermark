@@ -1,11 +1,11 @@
-// main.js - Handles UI interactions and connects UI to watermark logic
+// main.js - 处理UI交互并连接UI到水印逻辑
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Get UI Elements ---
+    // --- 获取UI元素 ---
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    // Embed elements
+    // 嵌入元素
     const embedKeyInput = document.getElementById('embed-key');
     const embedWatermarkInput = document.getElementById('embed-watermark');
     const embedTextInput = document.getElementById('embed-text');
@@ -17,14 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const embedOutputCountSpan = document.getElementById('embed-output-count');
     const copyEmbedButton = document.getElementById('copy-button');
 
-    // Extract elements
+    // 提取元素
     const extractKeyInput = document.getElementById('extract-key');
     const extractTextInput = document.getElementById('extract-text');
     const extractTextCountSpan = document.getElementById('extract-text-count');
     const extractButton = document.getElementById('extract-button');
     const extractOutputDisplay = document.getElementById('extract-output');
 
-    // Clean elements
+    // 清除元素
     const cleanTextInput = document.getElementById('clean-text');
     const cleanTextCountSpan = document.getElementById('clean-text-count');
     const cleanButton = document.getElementById('clean-button');
@@ -32,10 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanOutputCountSpan = document.getElementById('clean-output-count');
     const copyCleanButton = document.getElementById('copy-clean-button');
 
-    // Notification container element
+    // 通知容器元素
     const notificationContainer = document.getElementById('notification-container');
 
-    // --- Notification System (优化版) ---
+    // --- 通知系统 (优化版) ---
 
     /**
      * 显示非阻塞式通知消息
@@ -110,9 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Helper Functions (Existing) ---
+    // --- 辅助函数 (现有的) ---
 
-    // Function to update character count for an element
+    // 更新元素的字符计数的函数
     function updateCharCount(element, countSpanElement) {
         if (element && countSpanElement) {
             const count = element.value !== undefined ? element.value.length : element.textContent.length;
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Tab Switching Logic ---
+    // --- 标签切换逻辑 ---
     function showTab(tabId) {
         tabContents.forEach(content => {
             content.classList.remove('active');
@@ -139,14 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
              activeButton.classList.add('active');
         }
 
-        // Hide ALL notifications on tab switch the quick way
-        // A more graceful way would be to trigger hideNotification() for each, allowing transitionend
-        // hideNotification(); // Call the function to hide all
+        // 标签切换时隐藏所有通知的快速方法
+        // 更优雅的方式是为每个通知触发 hideNotification()，允许动画结束
+        // hideNotification(); // 调用函数隐藏所有通知
          document.querySelectorAll('#notification-container .notification-box').forEach(box => hideNotification(box));
 
-        // --- Reset and Update counts for each tab ---
+        // --- 重置并更新每个标签的计数 ---
 
-        // Reset Embed tab
+        // 重置嵌入标签
         if (embedTextInput) {
              embedTextInput.value = '';
              if (embedTextCountSpan) updateCharCount(embedTextInput, embedTextCountSpan);
@@ -157,14 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (copyEmbedButton) copyEmbedButton.disabled = true;
 
-        // Reset Extract tab
+        // 重置提取标签
         if (extractTextInput) {
              extractTextInput.value = '';
              if (extractTextCountSpan) updateCharCount(extractTextInput, extractTextCountSpan);
         }
         if (extractOutputDisplay) extractOutputDisplay.textContent = '[提取结果将显示在此处]';
 
-        // Reset Clean tab
+        // 重置清除标签
         if (cleanTextInput) {
              cleanTextInput.value = '';
             if (cleanTextCountSpan) updateCharCount(cleanTextInput, cleanTextCountSpan);
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
          if (copyCleanButton) copyCleanButton.disabled = true;
     }
 
-    // Add event listeners to tab buttons
+    // 为标签按钮添加事件监听器
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabId = button.getAttribute('data-tab');
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Event Listeners for Inputs (Character Count) ---
+    // --- 输入框的事件监听器 (字符计数) ---
     if (embedTextInput && embedTextCountSpan) {
         embedTextInput.addEventListener('input', () => updateCharCount(embedTextInput, embedTextCountSpan));
     }
@@ -197,16 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanTextInput.addEventListener('input', () => updateCharCount(cleanTextInput, cleanTextCountSpan));
     }
 
-    // --- Event Listeners for Buttons ---
+    // --- 按钮的事件监听器 ---
 
-    // Density slider update (Embed tab)
+    // 密度滑块更新 (嵌入标签)
     if (densitySlider && densityValueSpan) {
         densitySlider.addEventListener('input', () => {
             densityValueSpan.textContent = densitySlider.value;
         });
     }
 
-    // Embed Button Click Handler
+    // 嵌入按钮点击处理程序
     if (embedButton && embedKeyInput && embedWatermarkInput && embedTextInput && embedOutputTextarea && densitySlider && copyEmbedButton && notificationContainer) {
         embedButton.addEventListener('click', () => {
             const key = embedKeyInput.value;
@@ -235,12 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 无零宽字符，继续
                 startEmbedding(key, watermark, text, blockSize);
             } else {
-                console.error("containsZeroWidthChars function not found. Cannot perform pre-check.");
+                console.error("找不到 containsZeroWidthChars 函数。无法执行预检查。");
                 startEmbedding(key, watermark, text, blockSize);
             }
         });
     } else {
-        console.error("One or more embed elements not found!");
+        console.error("未找到一个或多个嵌入元素！");
         if(notificationContainer) {
             showNotification('error', '应用加载错误，部分功能 (嵌入) 无法使用。请尝试刷新页面。', 3500);
         }
@@ -250,12 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startEmbedding(key, watermark, text, blockSize) {
         embedButton.disabled = true;
         copyEmbedButton.disabled = true;
-        // 不再显示“正在嵌入水印...”的通知
+        // 不再显示"正在嵌入水印..."的通知
 
         setTimeout(() => {
             try {
                 if (typeof embedWatermark !== 'function') {
-                    throw new Error("Watermark embedding function is not available.");
+                    throw new Error("水印嵌入函数不可用。");
                 }
                 const resultText = embedWatermark(text, key, watermark, blockSize);
 
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     copyEmbedButton.disabled = true;
                 }
             } catch (error) {
-                console.error("Embedding failed:", error);
+                console.error("嵌入失败:", error);
                 showNotification('error', `嵌入失败：${error.message}`, 3500);
                 embedOutputTextarea.value = '';
                 if (embedOutputCountSpan) updateCharCount(embedOutputTextarea, embedOutputCountSpan);
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
          console.error("复制按钮或输出文本区域未找到!");
     }
 
-    // Extract Button Click Handler
+    // 提取按钮点击处理程序
     if (extractButton && extractKeyInput && extractTextInput && extractOutputDisplay && notificationContainer && extractTextCountSpan) {
         extractButton.addEventListener('click', () => {
             const key = extractKeyInput.value;
@@ -318,12 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             extractButton.disabled = true;
-            // 不再显示“正在尝试提取水印...”的通知
+            // 不再显示"正在尝试提取水印..."的通知
 
             setTimeout(() => {
                 try {
                     if (typeof extractWatermark !== 'function') {
-                        throw new Error("Watermark extraction function is not available.");
+                        throw new Error("水印提取函数不可用。");
                     }
                     const extractedWatermark = extractWatermark(text, key);
 
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         showNotification('warning', '未能提取到有效水印。请检查输入的文本、密钥是否正确，文本是否被修改或零宽字符是否被移除。', 3500);
                     }
                 } catch (error) {
-                    console.error("Extraction failed:", error);
+                    console.error("提取失败:", error);
                     showNotification('error', `提取过程中发生错误：${error.message}`, 3500);
                     extractOutputDisplay.textContent = '[提取失败]';
                 } finally {
@@ -344,13 +344,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 10);
         });
     } else {
-        console.error("One or more extract elements not found!");
+        console.error("未找到一个或多个提取元素！");
         if(notificationContainer) {
             showNotification('error', '应用加载错误，部分功能 (提取) 无法使用。请尝试刷新页面。', 3500);
         }
     }
 
-     // Clean Button Click Handler
+     // 清除按钮点击处理程序
     if (cleanButton && cleanTextInput && cleanOutputDisplay && notificationContainer && cleanTextCountSpan && cleanOutputCountSpan && copyCleanButton) {
          cleanButton.addEventListener('click', () => {
             const text = cleanTextInput.value;
@@ -365,12 +365,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             cleanButton.disabled = true;
             copyCleanButton.disabled = true;
-            // 不再显示“正在清除零宽字符...”的通知
+            // 不再显示"正在清除零宽字符..."的通知
 
             setTimeout(() => {
                 try {
                     if (typeof cleanZeroWidthChars !== 'function') {
-                        throw new Error("Zero-width cleaning function is not available.");
+                        throw new Error("零宽字符清除函数不可用。");
                     }
                     const cleanedText = cleanZeroWidthChars(text);
 
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         copyCleanButton.disabled = false;
                     }
                 } catch (error) {
-                    console.error("Cleaning failed:", error);
+                    console.error("清除失败:", error);
                     showNotification('error', `清除过程中发生错误：${error.message}`, 3500);
                     cleanOutputDisplay.textContent = '[清除失败]';
                     if (cleanOutputCountSpan) updateCharCount(cleanOutputDisplay, cleanOutputCountSpan);
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 10);
          });
     } else {
-        console.error("One or more clean elements not found!");
+        console.error("未找到一个或多个清除元素！");
         if(notificationContainer) {
             showNotification('error', '应用加载错误，部分功能 (清除) 无法使用。请尝试刷新页面。', 3500);
         }
@@ -423,8 +423,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("复制清除按钮或清除输出显示未找到!");
     }
 
-    // Initial setup: show the 'embed' tab by default and set initial slider value display
-     showTab('embed'); // Calling showTab clears and updates counts for embed tab initially as well
+    // 初始设置：默认显示"嵌入"标签并设置初始滑块值显示
+     showTab('embed'); // 调用 showTab 同时初始清除并更新嵌入标签的计数
      if (densityValueSpan && densitySlider) {
          densityValueSpan.textContent = densitySlider.value;
      }
