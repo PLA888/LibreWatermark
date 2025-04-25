@@ -178,6 +178,33 @@ function cleanZeroWidthChars(text) {
 }
 
 /**
+ * 计算指定分块大小下允许的最大水印二进制比特数。
+ * 考虑到分块大小、认证码和长度前缀。
+ * @param {number} blockSize 分块大小（字符数）
+ * @returns {number} 水印允许的最大二进制比特数
+ */
+function calculateMaxWatermarkBits(blockSize) {
+    // 一个分块最多有 blockSize + 1 个插入点
+    // 需要减去认证码长度（AUTH_CODE_BITS）和长度前缀（16比特）
+    const maxPayloadBits = blockSize + 1;
+    const maxWatermarkBits = maxPayloadBits - AUTH_CODE_BITS - 16;
+    
+    // 确保至少返回1（避免负数）
+    return Math.max(1, maxWatermarkBits);
+}
+
+/**
+ * 计算指定UTF-8字符串大约需要多少比特来存储。
+ * @param {string} text 要计算的文本
+ * @returns {number} 估计的比特数
+ */
+function estimateUtf8Bits(text) {
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(text);
+    return uint8Array.length * 8; // 每个字节8比特
+}
+
+/**
  * 将水印分块嵌入到文本中，使用零宽字符。
  * 流程：准备负载 -> 密钥混淆负载 -> 分块&生成插入位置 -> 插入零宽字符。
  * @param {string} originalText 要嵌入水印的原始文本。
@@ -197,9 +224,16 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
          console.warn("警告：分块大小（" + blockSize + "）非常小，可能导致文本膨胀严重或出现其他问题。建议使用更高的值。");
      }
 
+    // 检查水印长度是否超出可嵌入上限
+    const maxWatermarkBits = calculateMaxWatermarkBits(blockSize);
+    const watermarkBinary = stringToBinary(watermarkText);
+    const watermarkLength = watermarkBinary.length;
+    
+    if (watermarkLength > maxWatermarkBits) {
+        throw new Error(`水印内容过长。当前分块大小 (${blockSize}) 下，水印二进制长度不能超过 ${maxWatermarkBits} 比特，而您的水印内容需要 ${watermarkLength} 比特。请缩短水印内容或增加分块大小。`);
+    }
+
     // 1. 准备水印负载 (总负载 = 16位长度前缀 + 水印数据 + 32位认证码)
-    const watermarkBinary = stringToBinary(watermarkText); // 水印内容转二进制
-    const watermarkLength = watermarkBinary.length;      // 水印二进制长度
     const lengthBinary = watermarkLength.toString(2).padStart(16, '0'); // 16位长度前缀，不足补零
     const authBinary = generateAuthCode(watermarkBinary, secretKey); // 生成认证码二进制
 
@@ -215,11 +249,6 @@ function embedWatermark(originalText, secretKey, watermarkText, blockSize) {
          throw new Error(`原始文本过短 (${originalText.length} 字符)。水印负载需要 ${payloadBits} 个插入位置（比特），您需要至少 ${payloadBits - 1} 个字符长度的原始文本才能完整嵌入一个负载拷贝。请加长原始文本或缩短水印内容。`);
     }
     // --- 结束修复 Bug ---
-
-    // 警告：如果负载大小大于单个分块的插入点，即使总长度够，在小于分块大小的文本片段中可能提取困难
-     if (payloadBits > blockSize + 1) {
-          console.warn(`警告：水印负载 (${payloadBits} 比特) 大于单个分块 (${blockSize} 字符) 的最大可能插入点 (${blockSize + 1})。这意味着在一个分块文本长度的片段中无法包含一个完整的负载拷贝。从小于分块大小的文本片段中可能无法提取到完整的水印信息。`);
-     }
 
     // 2. 生成密钥流用于混淆负载，使用密钥作为种子
     const streamSeed = simpleHash(secretKey + "_stream_seed"); // 密钥流种子

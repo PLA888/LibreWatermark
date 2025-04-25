@@ -207,11 +207,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (embedTextInput && embedTextCountSpan) {
         embedTextInput.addEventListener('input', () => updateCharCount(embedTextInput, embedTextCountSpan));
     }
-     if (extractTextInput && extractTextCountSpan) {
+    if (extractTextInput && extractTextCountSpan) {
         extractTextInput.addEventListener('input', () => updateCharCount(extractTextInput, extractTextCountSpan));
     }
-     if (cleanTextInput && cleanTextCountSpan) {
+    if (cleanTextInput && cleanTextCountSpan) {
         cleanTextInput.addEventListener('input', () => updateCharCount(cleanTextInput, cleanTextCountSpan));
+    }
+    
+    // 新增：水印内容长度实时验证
+    if (embedWatermarkInput && densitySlider) {
+        const watermarkLengthInfo = document.createElement('span');
+        watermarkLengthInfo.id = 'watermark-length-info';
+        watermarkLengthInfo.style.marginLeft = '10px';
+        watermarkLengthInfo.style.fontSize = '0.9em';
+        if (embedWatermarkInput.parentNode) {
+            embedWatermarkInput.parentNode.appendChild(watermarkLengthInfo);
+        }
+        
+        // 更新水印长度提示信息的函数
+        function updateWatermarkLengthInfo() {
+            const watermarkText = embedWatermarkInput.value;
+            const blockSize = parseInt(densitySlider.value, 10);
+            
+            try {
+                if (typeof estimateUtf8Bits !== 'function' || typeof calculateMaxWatermarkBits !== 'function') {
+                    throw new Error("缺少必要的水印长度计算函数");
+                }
+                
+                const estimatedBits = watermarkText ? estimateUtf8Bits(watermarkText) : 0;
+                const maxBits = calculateMaxWatermarkBits(blockSize);
+                const usedPercent = Math.round((estimatedBits / maxBits) * 100);
+                
+                watermarkLengthInfo.textContent = `${estimatedBits}/${maxBits} 比特 (${usedPercent}%)`;
+                
+                if (!watermarkText || watermarkText.length === 0) {
+                    // 当没有文本时，显示黄色警告
+                    watermarkLengthInfo.className = 'warning';
+                    watermarkLengthInfo.title = '请输入水印内容';
+                } else if (estimatedBits > maxBits) {
+                    watermarkLengthInfo.className = 'error';
+                    watermarkLengthInfo.title = '水印内容过长，超出了当前分块大小下的最大允许长度。请缩短水印内容或增加分块大小。';
+                } else if (usedPercent > 80) {
+                    watermarkLengthInfo.className = 'warning';
+                    watermarkLengthInfo.title = '水印内容接近最大长度限制，建议增加分块大小以提高提取成功率。';
+                } else {
+                    watermarkLengthInfo.className = 'success';
+                    watermarkLengthInfo.title = '水印长度在安全范围内。';
+                }
+            } catch (e) {
+                console.error("计算水印长度时出错:", e);
+                watermarkLengthInfo.textContent = '无法计算水印长度';
+                watermarkLengthInfo.className = 'error';
+            }
+        }
+        
+        // 水印内容变化时更新长度信息
+        embedWatermarkInput.addEventListener('input', updateWatermarkLengthInfo);
+        
+        // 密度滑块变化时更新长度信息
+        densitySlider.addEventListener('input', () => {
+            densityValueSpan.textContent = densitySlider.value;
+            updateWatermarkLengthInfo();
+        });
+        
+        // 初始化长度信息
+        updateWatermarkLengthInfo();
     }
 
     // --- 按钮事件监听器 ---

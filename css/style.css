@@ -107,6 +107,7 @@ h2 {
     margin-bottom: 20px;
     flex-wrap: wrap;
     flex-grow: 1;
+    align-items: stretch; /* 保证左右两侧等高 */
 }
 
 .left-panel,
@@ -115,20 +116,80 @@ h2 {
     min-width: 300px;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }
 
-.right-panel .result-group {
+/* 确保每个界面的左右面板高度匹配 */
+/* 嵌入水印界面 */
+#embed .left-panel,
+#embed .right-panel {
+    min-height: 450px; /* 基础最小高度 */
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
 }
 
-/* 使 textarea 填充列中的可用高度 */
-.left-panel textarea,
-.right-panel textarea {
+#embed .left-panel .form-group:last-child {
+    flex-grow: 1; /* 让最后一个表单组（文本区域）填充剩余空间 */
+}
+
+#embed .right-panel .result-group {
+    flex-grow: 1; /* 让结果组填充空间 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 提取水印界面 */
+#extract .left-panel,
+#extract .right-panel {
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+}
+
+#extract .left-panel .form-group:last-child {
+    flex-grow: 1; /* 让包含文本框的表单组填充剩余空间 */
+}
+
+#extract .right-panel .result-group {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 清除零宽字符界面 */
+#clean .left-panel,
+#clean .right-panel {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+#clean .left-panel .form-group {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#clean .right-panel .result-group {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 右侧面板内文本区域高度设置 */
+.right-panel textarea,
+.right-panel .output-display {
+    height: auto; /* 改为自动高度 */
+    min-height: 150px; /* 最小高度 */
+    flex-grow: 1; /* 让它填充可用空间 */
+    overflow: auto;
+    resize: vertical; /* 允许用户手动拉伸（可选） */
+}
+
+/* 左侧面板文本框也要自动填充空间 */
+.left-panel textarea {
     flex-grow: 1;
     min-height: 150px;
-    box-sizing: border-box;
 }
 
 .form-group {
@@ -248,7 +309,9 @@ small {
 
 /* Buttons */
 .button-container {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
     margin-top: 15px;
     margin-bottom: 20px;
 }
@@ -308,11 +371,25 @@ small {
     color: #495057;
     overflow: auto;
     font-size: 0.95em;
-    flex-grow: 1;
+    flex-grow: 0; /* Changed from 1 to 0 to prevent expansion */
     display: block;
     margin-bottom: 10px;
     box-sizing: border-box;
+    max-height: 200px; /* Added max-height to limit vertical growth */
 }
+
+#extract-output {
+    height: 350px; /* Increased height to match left panel */
+    max-height: 350px; /* Match with height */
+    overflow-y: auto;
+}
+
+#clean-output {
+    height: 200px; 
+    max-height: 200px;
+    overflow-y: auto;
+}
+
 textarea#embed-output {
     min-height: 150px;
 }
@@ -497,59 +574,86 @@ footer a:hover {
     .left-panel,
     .right-panel {
         min-width: auto;
-        margin-bottom: 30px;
     }
-     .content-layout > *:last-child {
-         margin-bottom: 0;
-     }
-
-    .action-button {
-        width: 100%;
-        min-width: auto;
-        padding: 12px 20px;
+    
+    /* 在移动视图中，每个面板使用固定最小高度 */
+    #embed .left-panel, #embed .right-panel,
+    #extract .left-panel, #extract .right-panel,
+    #clean .left-panel, #clean .right-panel {
+        min-height: auto;
     }
-
-     .tab-button {
-         margin: 0 2px 5px 2px;
-     }
-
-     h1 { font-size: 1.8em; }
-     h2 { font-size: 1.3em; }
-
-     #notification-container {
-         top: 10px;
-         right: 10px;
-         left: 10px;
-         max-width: none;
-         padding: 0;
-     }
-     .notification-box {
-          max-width: none;
-     }
-      /* Modal on small screens */
-     .modal-content {
-         max-width: 95%; /* Use almost full width */
-         padding: 20px;
-     }
+    
+    .left-panel textarea,
+    .right-panel textarea {
+        min-height: 120px;
+        height: auto;
+    }
+    
+    /* 保持输出显示区域的固定高度 */
+    #clean-output, #extract-output {
+        height: 180px; /* 略微减小在较小屏幕上的高度 */
+        max-height: 180px;
+    }
 }
 
 @media (max-width: 480px) {
-     .container {
+    .container {
          padding: 15px 15px;
-     }
-     h1 { font-size: 1.6em; }
-     h2 { font-size: 1.1em; }
+    }
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 1.1em; }
 
-     .tab-button {
+    .tab-button {
          font-size: 0.9em;
          padding: 10px 15px;
          min-width: auto;
-     }
-     .action-button {
+    }
+    .action-button {
          font-size: 1em;
-     }
-     footer {
+    }
+    
+    .left-panel textarea,
+    .right-panel textarea {
+        min-height: 90px;
+        height: auto;
+    }
+    
+    /* 保持输出显示区域的固定高度 */
+    #clean-output, #extract-output {
+        height: 150px; /* 在最小屏幕上进一步减小高度 */
+        max-height: 150px;
+    }
+    
+    footer {
          font-size: 0.8em;
          padding: 15px;
-     }
+    }
+}
+
+/* 水印长度信息指示器样式 */
+#watermark-length-info {
+    display: inline-block;
+    font-size: 0.85em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+#watermark-length-info.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+#watermark-length-info.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+#watermark-length-info.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
