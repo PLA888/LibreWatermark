@@ -17,7 +17,6 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="embed">嵌入水印</button>
             <button class="tab-button" data-tab="extract">提取水印</button>
-            <!-- 新增清除零宽字符 Tab -->
             <button class="tab-button" data-tab="clean">清除零宽字符</button>
         </div>
 
@@ -73,7 +72,7 @@
                         <input type="password" id="extract-key" placeholder="必须与嵌入时使用的密钥相同" autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label for="extract-text">包含水印的文本: <!-- Optionally add count span here --> <span class="char-count" id="extract-text-count">(0 字)</span></label>
+                        <label for="extract-text">包含水印的文本: <span class="char-count" id="extract-text-count">(0 字)</span></label>
                         <textarea id="extract-text" rows="12" placeholder="在此输入或粘贴可能包含水印的文本"></textarea>
                     </div>
                  </div>
@@ -82,7 +81,6 @@
                      <div class="form-group result-group">
                         <label>提取到的水印:</label>
                         <p id="extract-output" class="output-display">[提取结果将显示在此处]</p>
-                        <!-- No count span for extract output as it's a p element showing extracted text -->
                     </div>
                  </div>
              </div>
@@ -91,7 +89,7 @@
              </div>
         </div>
 
-        <!-- 新增 清除零宽字符区域 -->
+        <!-- 清除零宽字符区域 -->
         <div id="clean" class="tab-content">
              <div class="content-layout">
                  <div class="left-panel">
@@ -105,11 +103,8 @@
                      <h2>清除结果</h2>
                      <div class="form-group result-group">
                         <label>已清除零宽字符的文本: <span class="char-count" id="clean-output-count">(0 字)</span></label>
-                        <!-- Using a <p> tag with .output-display class for consistency -->
                         <p id="clean-output" class="output-display">[清除结果将显示在此处]</p>
-                        <!-- Optional: Add a copy button for the cleaned text -->
-                        <!-- A separate copy button specifically for the clean output would be good -->
-                         <button id="copy-clean-button" class="copy-button secondary">复制结果</button>
+                        <button id="copy-clean-button" class="copy-button secondary">复制结果</button>
                     </div>
                  </div>
              </div>
@@ -118,8 +113,10 @@
              </div>
         </div>
 
-        <p id="status-message" class="status"></p>
-    </div>
+    </div> <!-- End .container -->
+
+    <!-- 新增 通知容器 -->
+    <div id="notification-container"></div>
 
     <footer>
         <p>&copy; 2025 <a href="https://zwei.de.eu.org/" target="_blank">Zwei</a>. Project: <a href="https://github.com/bestZwei/LibreWatermark" target="_blank">LibreWatermark</a>. Powered by pure JS.</p>

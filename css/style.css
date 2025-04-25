@@ -4,26 +4,28 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    /* 新配色方案：浅绿色调背景 */
-    background-color: #f8fdfa; /* Very light green-blue */
+    /* 新增页面渐变背景 */
+    background: linear-gradient(to bottom right, #e0f2f4, #f8fdfa); /* Gentle gradient from light blue-gray to very light green-blue */
+    background-attachment: fixed; /* Ensure gradient covers entire viewport even with scrolling */
     color: #333;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Push footer to bottom */
 }
 
 .container {
     max-width: 1000px;
     width: 95%;
     margin: 30px auto 20px auto;
-    /* Container 背景保持白色，与新背景区分 */
     background: #fff;
     padding: 30px 40px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    flex-shrink: 0; /* Prevent container from shrinking */
+    flex-shrink: 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -32,14 +34,12 @@ header {
 }
 
 h1 {
-    /* 新配色方案：主要标题颜色 */
     color: #5ac1a6; /* Minty teal */
     margin-bottom: 0.3em;
     font-size: 2.2em;
 }
 
 h2 {
-     /* 新配色方案：次要标题颜色 */
      color: #4a4a4a; /* Slightly softer dark gray */
      margin-top: 0;
      margin-bottom: 1em;
@@ -65,7 +65,6 @@ h2 {
 .tabs {
     display: flex;
     margin-bottom: 25px;
-    /* 新配色方案：Tab 下边框颜色 */
     border-bottom: 2px solid #5ac1a6;
     justify-content: center;
     padding-bottom: 0;
@@ -76,7 +75,6 @@ h2 {
     padding: 12px 25px;
     cursor: pointer;
     border: none;
-    /* 新配色方案：非激活 Tab 背景 */
     background-color: #e0f2f4; /* Very light cool gray/blue */
     margin: 0 3px;
     border-radius: 8px 8px 0 0;
@@ -93,12 +91,10 @@ h2 {
 }
 
 .tab-button.active {
-    /* 新配色方案：激活 Tab 背景和文本颜色 */
     background-color: #5ac1a6;
     color: white;
     position: relative;
     bottom: -2px;
-    /* 新配色方案：激活 Tab 下边框颜色 */
     border-bottom: 2px solid #5ac1a6;
 }
 
@@ -106,6 +102,7 @@ h2 {
 .tab-content {
     display: none;
     padding-top: 25px;
+    flex-grow: 1;
 }
 
 .tab-content.active {
@@ -118,6 +115,7 @@ h2 {
     gap: 40px;
     margin-bottom: 20px;
     flex-wrap: wrap;
+    flex-grow: 1;
 }
 
 .left-panel,
@@ -126,6 +124,12 @@ h2 {
     min-width: 300px;
     display: flex;
     flex-direction: column;
+}
+
+.right-panel .result-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 /* Make textareas fill available height in columns */
@@ -137,6 +141,8 @@ h2 {
 
 .form-group {
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 label {
@@ -147,9 +153,10 @@ label {
     font-weight: bold;
     color: #555;
     font-size: 1em;
+    flex-shrink: 0;
 }
 
-/* 字符计数span样式 */
+/* Character count span style */
 .char-count {
     font-weight: normal;
     font-size: 0.9em;
@@ -175,7 +182,6 @@ textarea {
 input[type="text"]:focus,
 input[type="password"]:focus,
 textarea:focus {
-    /* 新配色方案：焦点状态边框和阴影 */
     border-color: #99d5c9; /* Lighter teal */
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(90, 193, 166, 0.25); /* Use the primary color with transparency */
@@ -187,13 +193,17 @@ textarea:focus {
      align-items: center;
      gap: 10px;
      margin-bottom: 5px;
+     width: 100%;
+}
+.slider-container input[type="range"] {
+    width: auto;
+    max-width: none;
 }
 
 input[type="range"] {
     flex-grow: 1;
     margin: 0;
     padding: 0;
-    /* Customize slider appearance (optional) */
     -webkit-appearance: none;
     appearance: none;
     background: #ddd;
@@ -207,7 +217,6 @@ input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     width: 20px;
     height: 20px;
-    /* 新配色方案：Slider Thumb 颜色 */
     background: #5ac1a6;
     border-radius: 50%;
     cursor: pointer;
@@ -217,7 +226,6 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
-    /* 新配色方案：Slider Thumb 颜色 */
     background: #5ac1a6;
     border-radius: 50%;
     cursor: pointer;
@@ -234,9 +242,9 @@ input[type="range"]::-moz-range-thumb:hover {
     width: 50px;
     text-align: right;
     font-weight: bold;
-    /* 新配色方案：Slider 值颜色 */
     color: #5ac1a6;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
 }
 
 small {
@@ -250,7 +258,7 @@ small {
 .button-container {
     text-align: center;
     margin-top: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .action-button {
@@ -265,7 +273,6 @@ small {
 }
 
 .action-button.primary {
-     /* 新配色方案：主按钮北京颜色 */
      background-color: #5ac1a6;
      color: white;
 }
@@ -311,48 +318,129 @@ small {
     font-size: 0.95em;
     flex-grow: 1;
     display: block;
+    margin-bottom: 10px;
+}
+textarea#embed-output {
+    min-height: 150px; /* Match input textarea height */
 }
 
-/* Status Messages */
-.status {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    text-align: center;
-    min-height: 1.5em;
+/* --- Notification Container and Boxes --- */
+
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column-reverse; /* Stack new notifications at the bottom */
+    gap: 12px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    width: 100%;
+    max-width: 350px;
+     /* Smooth scrollbar for better UX if needed */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #888 #f1f1f1; /* Firefox */
+}
+/* Webkit browsers scrollbar */
+#notification-container::-webkit-scrollbar {
+  width: 8px;
+}
+#notification-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+#notification-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+#notification-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.notification-box {
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 1em;
+    color: #333;
     opacity: 1;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Smooth exit animation */
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    word-break: break-word;
+    overflow: hidden; /* Hide any potential overflow causing scrollbars */
+    position: relative; /* Needed for absolute positioning if we add icons etc. */
+    /* Add some minimal padding/margin to ensure content doesn't touch edges */
+    padding-right: 25px; /* Make space for potential close corner button */
 }
 
-.status:empty {
-    min-height: 0;
-    padding: 0;
+/* Entry animation */
+.notification-box {
+     opacity: 0;
+     transform: translateX(20px);
+     animation: slideInNotification 0.3s ease-out forwards;
+}
+/* Define entry animation keyframes */
+@keyframes slideInNotification {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-box.hiding {
+     opacity: 0;
+     transform: translateX(20px); /* Exit animation */
+}
+
+.notification-box .message {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.notification-box .close-btn {
+    position: absolute; /* Position absolutely in the top right corner */
+    top: 5px;
+    right: 5px;
+    background: none;
     border: none;
-    margin-top: 0;
-    margin-bottom: 0;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: inherit; /* Inherit color from box */
+    padding: 5px; /* Add padding to increase clickable area */
+    line-height: 1;
+    opacity: 0.5; /* Slightly transparent by default */
+    transition: opacity 0.2s ease;
+     /* Ensure button is above message if they overlap */
+     z-index: 1;
 }
 
-/* Standard status colors - keeping for clarity */
-.status.info {
+.notification-box .close-btn:hover {
+    opacity: 1;
+}
+
+/* Notification Status Colors */
+/* Borrowing colors from previous .status classes */
+.notification-box.info {
+     background-color: #d1ecf1; /* Lighter blue */
      color: #0c5460;
-     background-color: #d1ecf1;
-     border: 1px solid #bee5eb;
+     border-left: 4px solid #bee5eb;
 }
-.status.success {
+.notification-box.success {
+     background-color: #d4edda; /* Lighter green */
      color: #155724;
-     background-color: #d4edda;
-     border: 1px solid #c3e6cb;
+     border-left: 4px solid #c3e6cb;
 }
-.status.warning {
+.notification-box.warning {
+     background-color: #fff3cd; /* Lighter yellow */
      color: #856404;
-     background-color: #fff3cd;
-     border: 1px solid #ffeeba;
+     border-left: 4px solid #ffeeba;
 }
-.status.error {
+.notification-box.error {
+     background-color: #f8d7da; /* Lighter red */
      color: #721c24;
-     background-color: #f8d7da;
-     border: 1px solid #f5c6cb;
+     border-left: 4px solid #f5c6cb;
 }
 
 /* Footer */
@@ -367,7 +455,6 @@ footer {
 }
 
 footer a {
-    /* Keep link color standard blue for familiarity or change? Keep standard blue */
     color: #007bff;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -391,7 +478,11 @@ footer a:hover {
     .left-panel,
     .right-panel {
         min-width: auto;
+        margin-bottom: 30px;
     }
+     .content-layout > *:last-child {
+         margin-bottom: 0;
+     }
 
     .action-button {
         width: 100%;
@@ -405,6 +496,16 @@ footer a:hover {
 
      h1 { font-size: 1.8em; }
      h2 { font-size: 1.3em; }
+
+     #notification-container {
+         top: 10px;
+         right: 10px;
+         left: 10px; /* notifications take full width minus margins */
+         max-width: none;
+     }
+     .notification-box {
+          max-width: none; /* Allow full width on small screens */
+     }
 }
 
 @media (max-width: 480px) {
